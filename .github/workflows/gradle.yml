@@ -40,9 +40,13 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-gradle-
 
+    # gradle 권한 부여
+    - name: Run chmod to make gradlew executable
+      run: chmod +x ./gradlew
+
     # docker spring job
     - name: Build with Gradle # 실제 application build(-x 옵션을 통해 test는 제외)
-      run: ./gradlew bootjar -x test
+      run: ./gradlew bootjar
       
     # docker build & push to
     - name: Docker build & push
