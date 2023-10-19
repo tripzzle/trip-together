@@ -44,7 +44,7 @@ jobs:
     - name: Docker build & push
       run: |
           docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
-          docker build -f Dockerfile-prod -t ${{ secrets.DOCKER_REPO }}/trip-together .
+          docker build -f Dockerfile -t ${{ secrets.DOCKER_REPO }}/trip-together .
           docker push ${{ secrets.DOCKER_REPO }}/trip-together
 
     # docker deploy
