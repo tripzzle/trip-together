@@ -22,7 +22,7 @@ repositories {
 }
 
 dependencies {
-	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+//	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 	compileOnly 'org.projectlombok:lombok'
 	annotationProcessor 'org.projectlombok:lombok'
@@ -31,4 +31,12 @@ dependencies {
 
 tasks.named('test') {
 	useJUnitPlatform()
+}
+
+processResources.dependsOn('copySecret')
+
+tasks.register('copySecret', Copy) {
+	from './security'
+	include '*.yml'
+	into 'src/main/resources'
 }
