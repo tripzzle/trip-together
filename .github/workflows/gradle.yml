@@ -63,13 +63,18 @@ jobs:
           username : ubuntu
           key : ${{ secrets.SSH_KEY }}
           script : |
-              cd app
-              sudo rm concal.log
-              sudo docker rm -f $(doker ps -qa)
-              sudo docker pull ${{ secrets.DOCKER_USERNAME }}/trip-together
-              # docker-compose up -d
-              sudo docker logs -f my_trip &> concal.log &
-              docker image prune -f
+              # cd app
+              # sudo rm concal.log
+              # sudo docker rm -f $(doker ps -qa)
+              # sudo docker pull ${{ secrets.DOCKER_USERNAME }}/trip-together
+              # # docker-compose up -d
+              # sudo docker logs -f my_trip &> concal.log &
+              # docker image prune -f
+              - docker volume prune -f # 사용되지 않는 컨테이너, 이미지 삭제 및 볼륨 정리
+              - docker-compose down # docker-compose 내리기
+              - docker-compose pull
+              - docker-compose build # docker-compose 빌드
+              - docker-compose up -d # docker-compose 백그라운드 실행
               
     - name: Build with Gradle
       uses: gradle/gradle-build-action@bd5760595778326ba7f1441bcf7e88b49de61a25 # v2.6.0
