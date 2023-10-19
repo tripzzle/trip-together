@@ -39,7 +39,11 @@ jobs:
         key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
         restore-keys: |
           ${{ runner.os }}-gradle-
-    
+
+    # docker spring job
+    - name: Build with Gradle # 실제 application build(-x 옵션을 통해 test는 제외)
+      run: ./gradlew bootjar -x test
+      
     # docker build & push to
     - name: Docker build & push
       run: |
