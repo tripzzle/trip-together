@@ -39,12 +39,20 @@ jobs:
         key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
         restore-keys: |
           ${{ runner.os }}-gradle-
-    
+
+    # gradle 권한 부여
+    - name: Run chmod to make gradlew executable
+      run: chmod +x ./gradlew
+
+    # docker spring job
+    - name: Build with Gradle # 실제 application build(-x 옵션을 통해 test는 제외)
+      run: ./gradlew bootjar
+      
     # docker build & push to
     - name: Docker build & push
       run: |
           docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
-          docker build -f Dockerfile-prod -t ${{ secrets.DOCKER_REPO }}/trip-together .
+          docker build -f Dockerfile -t ${{ secrets.DOCKER_REPO }}/trip-together .
           docker push ${{ secrets.DOCKER_REPO }}/trip-together
 
     # docker deploy
@@ -59,7 +67,7 @@ jobs:
               sudo rm concal.log
               sudo docker rm - f $(doker ps -qa)
               sudo docker pull ${{ secrets.DOCKER_REPO }}/trip-together
-              docker-compose up -d
+              # docker-compose up -d
               sudo docker logs -f my_trip &> concal.log &
               docker image prune -f
               
