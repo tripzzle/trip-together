@@ -59,7 +59,7 @@ jobs:
               sudo rm concal.log
               sudo docker rm - f $(doker ps -qa)
               sudo docker pull ${{ secrets.DOCKER_REPO }}/trip-together
-              docker-compose up -d
+              # docker-compose up -d
               sudo docker logs -f my_trip &> concal.log &
               docker image prune -f
               
