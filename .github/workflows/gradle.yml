@@ -62,7 +62,7 @@ jobs:
           host : ${{ secrets.HOST }}
           username : ubuntu
           key : ${{ secrets.SSH_KEY }}
-          scripts : |
+          script : |
               cd app
               sudo rm concal.log
               sudo docker rm -f $(doker ps -qa)
