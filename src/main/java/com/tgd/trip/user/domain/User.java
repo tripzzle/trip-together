@@ -1,5 +1,6 @@
-package com.tgd.trip.user;
+package com.tgd.trip.user.domain;
 
+import com.tgd.trip.global.BaseEntity;
 import lombok.*;
 
 import javax.persistence.*;
@@ -9,7 +10,7 @@ import java.time.LocalDate;
 @Getter
 @Setter
 @NoArgsConstructor
-public class User {
+public class User extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

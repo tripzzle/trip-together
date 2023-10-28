@@ -1,5 +1,6 @@
-package com.tgd.trip.attraction;
+package com.tgd.trip.attraction.domain;
 
+import com.tgd.trip.global.BaseEntity;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -8,10 +9,10 @@ import javax.persistence.*;
 @Entity
 @Getter
 @Setter
-public class Attraction {
+public class Attraction extends BaseEntity {
 
     @Id
-    private Long id;
+    private Long attractionId;
     @Column(columnDefinition = "TEXT")
     private String title;
     private String overview;
@@ -21,4 +22,10 @@ public class Attraction {
     private String imgUrl;
     private Double latitude;
     private Double longitude;
+    @ManyToOne
+    @JoinColumn(name = "sido_code")
+    private Sido sido;
+    @ManyToOne
+    @JoinColumn(name = "gugun_code")
+    private Gugun gugun;
 }

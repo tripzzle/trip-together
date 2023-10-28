@@ -1,4 +1,4 @@
-package com.tgd.trip.attraction;
+package com.tgd.trip.attraction.domain;
 
 import lombok.*;
 
