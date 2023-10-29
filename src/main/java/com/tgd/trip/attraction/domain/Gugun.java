@@ -11,7 +11,7 @@ import javax.persistence.*;
 public class Gugun {
 
     @Id
-    private Long code;
+    private Long gugunCode;
     private String name;
     @ManyToOne
     @JoinColumn(name = "sido_code")

@@ -1,14 +1,16 @@
 package com.tgd.trip.attraction.domain;
 
 import com.tgd.trip.global.BaseEntity;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 import javax.persistence.*;
 
 @Entity
 @Getter
 @Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class Attraction extends BaseEntity {
 
     @Id
