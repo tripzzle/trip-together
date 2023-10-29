@@ -24,6 +24,8 @@ public class Attraction extends BaseEntity {
     private String imgUrl;
     private Double latitude;
     private Double longitude;
+    private Integer contentTypeId;
+    private Integer mlevel;
     @ManyToOne
     @JoinColumn(name = "sido_code")
     private Sido sido;
