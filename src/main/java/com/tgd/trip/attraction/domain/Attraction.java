@@ -26,10 +26,14 @@ public class Attraction extends BaseEntity {
     private Double longitude;
     private Integer contentTypeId;
     private Integer mlevel;
-    @ManyToOne
-    @JoinColumn(name = "sido_code")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "sido_code", insertable = false, updatable = false)
     private Sido sido;
-    @ManyToOne
-    @JoinColumn(name = "gugun_code")
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumns({
+            @JoinColumn(name = "gugun_code"),
+            @JoinColumn(name = "sido_code")
+    })
     private Gugun gugun;
 }

@@ -10,10 +10,7 @@ import javax.persistence.*;
 @NoArgsConstructor
 public class Gugun {
 
-    @Id
-    private Long gugunCode;
+    @EmbeddedId
+    private SidoGugun id;
     private String name;
-    @ManyToOne
-    @JoinColumn(name = "sido_code")
-    private Sido sido;
 }
