@@ -27,7 +27,7 @@ class CoordinateTest {
         Coordinate center = new Coordinate(37.551088, 126.991929);
 
         // when
-        Pair<Coordinate> squareCoordinate = center.getSquareCoordinate(center.latitude(), center.longitude(), height, width);
+        Pair<Coordinate> squareCoordinate = center.getSquareCoordinate(height, width);
         Coordinate first = squareCoordinate.first();
         Coordinate second = squareCoordinate.second();
 
