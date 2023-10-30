@@ -15,17 +15,17 @@ public record Coordinate(double latitude, double longitude) {
         return 2 * Math.atan2(Math.sqrt(dist), Math.sqrt(1 - dist)) * EARTH_RADIUS;
     }
 
-    public Pair<Coordinate> getSquareCoordinate(double centerX, double centerY, double height, double width) {
+    public Pair<Coordinate> getSquareCoordinate(double height, double width) {
         // 경도 변화량 계산 (단위: 도)
-        double longitudeDelta = Math.toDegrees(width / EARTH_RADIUS / Math.cos(Math.toRadians(centerY)));
+        double longitudeDelta = Math.toDegrees(width / EARTH_RADIUS / Math.cos(Math.toRadians(longitude)));
 
         // 위도 변화량 계산 (단위: 도)
         double latitudeDelta = Math.toDegrees(height / EARTH_RADIUS);
         Delta delta = new Delta(longitudeDelta, latitudeDelta);
 
         return new Pair<>(
-                new Coordinate(centerX - delta.longitudeDelta(), centerY - delta.latitudeDelta()),
-                new Coordinate(centerX + delta.longitudeDelta(), centerY + delta.latitudeDelta())
+                new Coordinate(latitude - delta.longitudeDelta(), longitude - delta.latitudeDelta()),
+                new Coordinate(latitude + delta.longitudeDelta(), longitude + delta.latitudeDelta())
         );
     }
 
