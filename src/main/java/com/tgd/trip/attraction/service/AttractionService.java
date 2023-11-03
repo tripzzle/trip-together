@@ -19,7 +19,14 @@ public class AttractionService {
         Pair<Coordinate> squareCoordinate = center.getSquareCoordinate(height, width);
         Coordinate topLeft = squareCoordinate.first();
         Coordinate bottomRight = squareCoordinate.second();
+        System.out.println(topLeft);
+        System.out.println(bottomRight);
         List<Attraction> attractions = attractionRepository.findAllByLatitudeBetweenAndLongitudeBetween(topLeft.latitude(), bottomRight.latitude(), topLeft.longitude(), bottomRight.longitude());
         return attractions;
+    }
+
+    public List<Attraction> getAttractions(Long gugunCode, Long sidoCode) {
+        System.out.println(gugunCode + " " + sidoCode);
+        return attractionRepository.findAllByGugun_IdGugunCodeAndGugun_IdSidoCode(gugunCode, sidoCode);
     }
 }

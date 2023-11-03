@@ -23,6 +23,7 @@ class AttractionRepositoryTest {
     public void 서울시_도봉구_시구군_코드로_관광지를_받아오는_테스트() {
         // given
         List<Attraction> attractions = attractionRepository.findAllByGugun_IdGugunCodeAndGugun_IdSidoCode(10L, 1L);
+        System.out.println(attractions);
         // then
         assertThat(greaterThan(0).matches(attractions.size()));
     }

@@ -23,9 +23,19 @@ public record Coordinate(double latitude, double longitude) {
         double latitudeDelta = Math.toDegrees(height / EARTH_RADIUS);
         Delta delta = new Delta(longitudeDelta, latitudeDelta);
 
+        double lat1 = latitude + delta.latitudeDelta();
+        double lat2 = latitude - delta.latitudeDelta();
+        double lng1 = longitude - delta.longitudeDelta();
+        double lng2 = longitude + delta.longitudeDelta();
+
+        double maxLatitude = Math.max(lat1, lat2);
+        double minLatitude = Math.min(lat1, lat2);
+        double maxLongitude = Math.max(lng1, lng2);
+        double minLongitude = Math.min(lng1, lng2);
+
         return new Pair<>(
-                new Coordinate(latitude - delta.longitudeDelta(), longitude - delta.latitudeDelta()),
-                new Coordinate(latitude + delta.longitudeDelta(), longitude + delta.latitudeDelta())
+                new Coordinate(minLatitude, minLongitude),
+                new Coordinate(maxLatitude, maxLongitude)
         );
     }
 
