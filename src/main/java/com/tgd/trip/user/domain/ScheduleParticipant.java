@@ -2,6 +2,7 @@ package com.tgd.trip.user.domain;
 
 import com.tgd.trip.attraction.domain.Attraction;
 import com.tgd.trip.global.BaseEntity;
+import com.tgd.trip.schedule.domain.Schedule;
 import lombok.*;
 
 import javax.persistence.*;
@@ -20,6 +21,6 @@ public class ScheduleParticipant extends BaseEntity {
     @JoinColumn(name = "user_id")
     private User user;
     @ManyToOne
-    @JoinColumn(name = "attraction_id")
-    private Attraction attraction;
+    @JoinColumn(name = "schedule_id")
+    private Schedule schedule;
 }

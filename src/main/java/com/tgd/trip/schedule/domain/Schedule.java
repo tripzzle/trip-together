@@ -4,6 +4,7 @@ import com.tgd.trip.global.BaseEntity;
 import lombok.*;
 
 import javax.persistence.*;
+import java.util.List;
 
 @Getter
 @Setter
@@ -19,4 +20,14 @@ public class Schedule extends BaseEntity {
     private Long likes;
     private String imgUrl;
     private Boolean viewYn;
+    @OneToMany(mappedBy = "schedule")
+    private List<Day> days;
+
+    public void addDays(Day day) {
+        if (!this.days.contains(day)) {
+            days.add(day);
+        }
+        day.setSchedule(this);
+    }
+
 }
