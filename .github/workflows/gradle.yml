@@ -29,6 +29,13 @@ jobs:
         java-version: '17'
         distribution: 'temurin'
         
+    # (1) 기본 체크아웃
+    - name: Checkout
+      uses: actions/checkout@v3
+      with:
+        token: ${{ secrets.SUBMODULE_TOKEN }}
+        submodules: true
+        
     # gradle caching
     - name: Gradle Caching
       uses: actions/cache@v3
