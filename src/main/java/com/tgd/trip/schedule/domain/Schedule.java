@@ -4,12 +4,15 @@ import com.tgd.trip.global.BaseEntity;
 import lombok.*;
 
 import javax.persistence.*;
+import java.util.ArrayList;
 import java.util.List;
 
 @Getter
 @Setter
 @Entity
 @NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class Schedule extends BaseEntity {
 
     @Id
@@ -19,9 +22,9 @@ public class Schedule extends BaseEntity {
     private String content;
     private Long likes;
     private String imgUrl;
-    private Boolean viewYn;
-    @OneToMany(mappedBy = "schedule")
-    private List<Day> days;
+    private Boolean viewYn = false;
+    @OneToMany(mappedBy = "schedule", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private final List<Day> days = new ArrayList<>();
 
     public void addDays(Day day) {
         if (!this.days.contains(day)) {

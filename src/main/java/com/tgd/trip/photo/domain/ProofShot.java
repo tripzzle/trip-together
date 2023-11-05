@@ -5,6 +5,7 @@ import com.tgd.trip.global.BaseEntity;
 import lombok.*;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
 
 @Entity
 @Getter
@@ -18,4 +19,6 @@ public class ProofShot extends BaseEntity {
     @ManyToOne
     @JoinColumn(name = "visited_id")
     private Visited visited;
+    @NotNull
+    private String imgUrl;
 }

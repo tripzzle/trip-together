@@ -4,6 +4,7 @@ import com.tgd.trip.global.BaseEntity;
 import lombok.*;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
 
 @Entity
@@ -17,7 +18,10 @@ public class User extends BaseEntity {
     private Long userId;
     private String password;
     private String name;
+    @NotNull
+    @Column(unique = true)
     private String email;
+    @NotNull
     private String role;
     private String status;
     private String provider;

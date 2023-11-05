@@ -15,7 +15,7 @@ public class ChatParticipant extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long chatParticipantId;
-    private Boolean isAdmin;
+    private Boolean isAdmin = false;
     @ManyToOne
     @JoinColumn(name = "participant_id")
     private User participant;

@@ -5,6 +5,7 @@ import com.tgd.trip.user.domain.User;
 import lombok.*;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
 
 @Entity
 @Getter
@@ -18,7 +19,10 @@ public class Notification extends BaseEntity {
     @ManyToOne
     @JoinColumn(name = "receiver_id")
     private User receiver;
+    @NotNull
+    @Column(columnDefinition = "TEXT")
     private String content;
+    @NotNull
     private Integer type;
     private String contentLink;
 }

@@ -5,6 +5,7 @@ import com.tgd.trip.schedule.domain.Day;
 import lombok.*;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
 
 @Entity
 @Getter
@@ -18,5 +19,6 @@ public class Photo extends BaseEntity {
     @ManyToOne
     @JoinColumn(name = "day_id")
     private Day day;
+    @NotNull
     private String imgUrl;
 }

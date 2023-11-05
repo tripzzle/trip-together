@@ -4,7 +4,8 @@ import com.tgd.trip.user.domain.ChatParticipant;
 import lombok.*;
 
 import javax.persistence.*;
-import java.time.LocalDateTime;
+import javax.validation.constraints.NotNull;
+import java.time.LocalDate;
 
 @Entity
 @Getter
@@ -15,8 +16,10 @@ public class Chat {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long chatId;
+    @NotNull
+    @Column(columnDefinition = "TEXT")
     private String content;
-    private LocalDateTime createdAt;
+    private LocalDate createdAt = LocalDate.now();
     @ManyToOne
     @JoinColumn(name = "chat_participant_id")
     private ChatParticipant chatParticipant;
