@@ -15,6 +15,7 @@ public class Comment extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long commentId;
+    @Column(columnDefinition = "TEXT")
     private String content;
     @ManyToOne
     @JoinColumn(name = "schedule_id")
