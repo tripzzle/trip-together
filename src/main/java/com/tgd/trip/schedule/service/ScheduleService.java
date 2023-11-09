@@ -8,6 +8,7 @@ import com.tgd.trip.schedule.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import javax.transaction.Transactional;
 import java.time.Period;
 import java.util.Optional;
 import java.util.stream.IntStream;
@@ -21,6 +22,7 @@ public class ScheduleService {
     private final AttractionRepository attractionRepository;
     private final DayAttractionRepository dayAttractionRepository;
 
+    @Transactional
     public Schedule createSchedule(ScheduleDto.Post post) {
         long dayDiff = Period.between(post.startDate(), post.endDate()).getDays();
 
@@ -51,5 +53,10 @@ public class ScheduleService {
 
     public Schedule getSchedule(Long id) {
         return scheduleRepository.findById(id).get();
+    }
+
+    public void deleteSchedule(Long id) {
+        Schedule schedule = getSchedule(id);
+        scheduleRepository.delete(schedule);
     }
 }

@@ -23,7 +23,7 @@ public class Schedule extends BaseEntity {
     private Long likes;
     private String imgUrl;
     private Boolean viewYn = false;
-    @OneToMany(mappedBy = "schedule", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "schedule", cascade = CascadeType.PERSIST, fetch = FetchType.LAZY, orphanRemoval = true)
     private final List<Day> days = new ArrayList<>();
 
     public void addDays(Day day) {

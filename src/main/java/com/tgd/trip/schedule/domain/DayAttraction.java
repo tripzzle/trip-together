@@ -15,7 +15,7 @@ public class DayAttraction extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long dayAttractionId;
-    @OneToOne(cascade = CascadeType.ALL, fetch =  FetchType.LAZY)
+    @OneToOne(fetch =  FetchType.LAZY)
     @JoinColumn(name = "attraction_id")
     private Attraction attraction;
     @ManyToOne(cascade = CascadeType.ALL, fetch =  FetchType.LAZY)

@@ -5,6 +5,7 @@ import com.tgd.trip.attraction.repository.AttractionRepository;
 import com.tgd.trip.global.util.Coordinate;
 import com.tgd.trip.global.util.Pair;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -25,8 +26,8 @@ public class AttractionService {
         return attractions;
     }
 
-    public List<Attraction> getAttractions(Long gugunCode, Long sidoCode) {
+    public List<Attraction> getAttractions(Long gugunCode, Long sidoCode, Pageable pageable) {
         System.out.println(gugunCode + " " + sidoCode);
-        return attractionRepository.findAllByGugun_IdGugunCodeAndGugun_IdSidoCode(gugunCode, sidoCode);
+        return attractionRepository.findAllByGugun_IdGugunCodeAndGugun_IdSidoCode(gugunCode, sidoCode, pageable.previousOrFirst());
     }
 }

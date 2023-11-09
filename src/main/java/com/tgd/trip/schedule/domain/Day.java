@@ -24,7 +24,7 @@ public class Day extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "schedule_id")
     private Schedule schedule;
-    @OneToMany(mappedBy = "day", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "day", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<DayAttraction> dayAttractions = new ArrayList<>();
 
     public Day(LocalDate date) {

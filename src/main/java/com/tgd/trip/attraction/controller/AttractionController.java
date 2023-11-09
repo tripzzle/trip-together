@@ -6,8 +6,13 @@ import com.tgd.trip.attraction.mapper.AttractionMapper;
 import com.tgd.trip.attraction.service.AttractionService;
 import com.tgd.trip.global.util.Coordinate;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
@@ -31,8 +36,9 @@ public class AttractionController {
 
     @GetMapping()
     public ResponseEntity<?> getAttractions(@RequestParam(name = "sido_code", required = false) Long sidoCode,
-                                            @RequestParam(name = "gugun_code", required = false) Long gugunCode) {
-        List<Attraction> attractions = attractionService.getAttractions(gugunCode, sidoCode);
+                                            @RequestParam(name = "gugun_code", required = false) Long gugunCode,
+                                            @PageableDefault Pageable pageable) {
+        List<Attraction> attractions = attractionService.getAttractions(gugunCode, sidoCode, pageable);
         List<AttractionDto.Response> responses = attractionMapper.entityToResponse(attractions);
         return ResponseEntity.ok(responses);
     }
