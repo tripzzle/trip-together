@@ -7,7 +7,12 @@ import java.util.List;
 
 public class ScheduleDto {
 
-    public record Post(LocalDate startDate, LocalDate endDate, Long userId, Boolean viewYn) {
+    public record Post(String title,
+                       String content,
+                       Boolean viewYn,
+                       String imgUrl,
+                       List<DayDto.Post> days
+                       ) {
     }
 
     @Builder

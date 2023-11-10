@@ -6,6 +6,7 @@ import lombok.*;
 import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Getter
 @Setter
@@ -33,4 +34,10 @@ public class Schedule extends BaseEntity {
         day.setSchedule(this);
     }
 
+    public Schedule(String title, String content) {
+        Optional.of(title)
+                .ifPresent(this::setTitle);
+        Optional.of(content)
+                .ifPresent(this::setContent);
+    }
 }
