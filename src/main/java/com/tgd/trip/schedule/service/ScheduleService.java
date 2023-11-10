@@ -19,6 +19,7 @@ import javax.transaction.Transactional;
 public class ScheduleService {
 
     private final ScheduleRepository scheduleRepository;
+    private final DayRepository dayRepository;
     private final AttractionRepository attractionRepository;
     private final DayAttractionRepository dayAttractionRepository;
 
@@ -30,6 +31,30 @@ public class ScheduleService {
                     Day day = new Day(dayDtoPost.date());
                     schedule.addDays(day);
                     dayDtoPost.dayAttractions().forEach(dayAttractionDto -> {
+                                Attraction attraction = attractionRepository.findById(dayAttractionDto.attractionId())
+                                        .orElseThrow(RuntimeException::new);
+                                DayAttraction dayAttraction = new DayAttraction(attraction, dayAttractionDto.memo());
+                                day.addDayAttraction(dayAttraction);
+                                dayAttractionRepository.save(dayAttraction);
+                            }
+                    );
+                }
+        );
+        scheduleRepository.save(schedule);
+
+        return schedule;
+    }
+
+    @Transactional
+    public Schedule updateSchedule(ScheduleDto.Patch patch) {
+        Schedule schedule = new Schedule(patch.title(), patch.content());
+
+        dayRepository.deleteAll(schedule.getDays());
+
+        patch.days().forEach(dayDtoPatch -> {
+                    Day day = new Day(dayDtoPatch.date());
+                    schedule.addDays(day);
+                    dayDtoPatch.dayAttractions().forEach(dayAttractionDto -> {
                                 Attraction attraction = attractionRepository.findById(dayAttractionDto.attractionId())
                                         .orElseThrow(RuntimeException::new);
                                 DayAttraction dayAttraction = new DayAttraction(attraction, dayAttractionDto.memo());
