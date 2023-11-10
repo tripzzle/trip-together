@@ -10,9 +10,12 @@ import com.tgd.trip.schedule.repository.DayAttractionRepository;
 import com.tgd.trip.schedule.repository.DayRepository;
 import com.tgd.trip.schedule.repository.ScheduleRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -46,10 +49,11 @@ public class ScheduleService {
     }
 
     @Transactional
-    public Schedule updateSchedule(ScheduleDto.Patch patch) {
-        Schedule schedule = new Schedule(patch.title(), patch.content());
+    public Schedule updateSchedule(Long id, ScheduleDto.Patch patch) {
+        Schedule schedule = scheduleRepository.findById(id).orElseThrow(RuntimeException::new);
 
-        dayRepository.deleteAll(schedule.getDays());
+        schedule.getDays().clear();
+        scheduleRepository.save(schedule);
 
         patch.days().forEach(dayDtoPatch -> {
                     Day day = new Day(dayDtoPatch.date());
@@ -76,5 +80,10 @@ public class ScheduleService {
     public void deleteSchedule(Long id) {
         Schedule schedule = getSchedule(id);
         scheduleRepository.delete(schedule);
+    }
+
+    public List<Schedule> getSchedules(String keyword, String sort, Pageable pageable) {
+        List<Schedule> schedules = scheduleRepository.findAllByTitleContaining(keyword, PageRequest.of(pageable.getPageNumber(),pageable.getPageSize()));
+        return schedules;
     }
 }

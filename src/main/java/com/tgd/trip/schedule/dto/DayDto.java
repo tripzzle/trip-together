@@ -19,4 +19,7 @@ public class DayDto {
     public record Response(LocalDate date, List<AttractionDto.Response> attractions){
 
     }
+    public record DateResponse(LocalDate date){
+
+    }
 }

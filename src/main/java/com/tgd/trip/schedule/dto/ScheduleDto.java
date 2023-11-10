@@ -2,7 +2,6 @@ package com.tgd.trip.schedule.dto;
 
 import lombok.Builder;
 
-import java.time.LocalDate;
 import java.util.List;
 
 public class ScheduleDto {
@@ -20,10 +19,13 @@ public class ScheduleDto {
                         Boolean viewYn,
                         String imgUrl,
                         List<DayDto.Patch> days
-                ) {
+    ) {
     }
 
     @Builder
     public record Response(String title, String content, List<DayDto.Response> dayResponses, Boolean viewYn) {
+    }
+
+    public record SimpleResponse(String title, String content, String imgUrl, List<DayDto.DateResponse> days) {
     }
 }
