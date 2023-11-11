@@ -22,7 +22,7 @@ public class User extends BaseEntity {
     @Column(unique = true)
     private String email;
     @NotNull
-    private String role;
+    private Role role;
     private String status;
     private String provider;
     private String providerId;
