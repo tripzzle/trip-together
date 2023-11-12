@@ -2,6 +2,7 @@ package com.tgd.trip.jwt;
 
 import com.tgd.trip.security.SecurityUser;
 import com.tgd.trip.user.domain.Role;
+import com.tgd.trip.user.domain.User;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.Jwts;
@@ -43,6 +44,7 @@ public class JwtTokenProvider {
                 .signWith(SignatureAlgorithm.HS256, secretKey) // 사용할 암호화 알고리즘과 signature에 들어갈 secret 값 세팅
                 .compact();
     }
+
 
     // JWT 토큰에서 인증 정보 조회
     public Authentication getAuthentication(String token) {
