@@ -6,6 +6,7 @@ import com.tgd.trip.jwt.JwtAuthenticationFilter;
 import com.tgd.trip.jwt.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -14,12 +15,17 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.client.userinfo.OAuth2UserService;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @RequiredArgsConstructor
 @EnableWebSecurity
+@Configuration
 public class SecurityConfig {
+
+    private final OAuth2UserService oAuth2UserService;
+
     private final JwtTokenProvider jwtTokenProvider;
     //      jwtAtuthenticationEntryPoint는 유효한 자격증명을 제공하지 않고 접근하려할 때 401에러를 리턴하는 클래스이다.
     private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
@@ -52,32 +58,26 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-                // .httpBasic().disable() // rest api 만을 고려하여 기본설정 해제
-                .csrf().disable()//csrf 보안을 사용하지 않겠다
+                .csrf().disable() // CSRF 보안을 사용하지 않습니다.
 
-                .exceptionHandling()
-                .authenticationEntryPoint(jwtAuthenticationEntryPoint)
-                .accessDeniedHandler(jwtAccessDeniedHandler)
+//                .exceptionHandling()
+//                .authenticationEntryPoint(jwtAuthenticationEntryPoint) // JWT 인증 진입 지점 설정
+//                .accessDeniedHandler(jwtAccessDeniedHandler) // JWT 접근 거부 핸들러 설정
 
-                // 토큰 기반 인증이므로 세션 사용 안함
-                .and()
-                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-
+                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS) // 토큰 기반 인증이므로 세션 사용 안함
 
                 .and()
-                //요청에 대한 사용 권한 체크
-                .authorizeRequests() // 요청에 대한 사용 권한 체크
-                .antMatchers("/admin/**").hasRole("ADMIN")
-                .antMatchers("/api/**").permitAll()
-//                .anyRequest().authenticated()
-                .anyRequest().permitAll()
+                .authorizeRequests() // 요청에 대한 사용 권한 체크 시작
+                .antMatchers("/api/user/**").authenticated() // "/api/gest/**"로 시작하는 URL은 인증 없이 접근 허용
+                .anyRequest().permitAll() // 그 외의 모든 요청은 인증이 필요함
 
-                // 그외 나머지 요청은 누구나 접근 가능
-//                .and().logout()
-                .and().addFilterBefore(new JwtAuthenticationFilter(jwtTokenProvider), UsernamePasswordAuthenticationFilter.class);
-
+                .and()
+                .addFilterBefore(new JwtAuthenticationFilter(jwtTokenProvider), UsernamePasswordAuthenticationFilter.class); // JwtAuthenticationFilter를 UsernamePasswordAuthenticationFilter 앞에 추가
+        http
+                .oauth2Login() // OAuth2 로그인 설정 시작
+                .userInfoEndpoint()
+                .userService(oAuth2UserService); // OAuth2 사용자 서비스 설정
 
         return http.build();
     }
-
 }
