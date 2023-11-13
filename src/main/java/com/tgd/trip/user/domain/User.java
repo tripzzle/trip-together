@@ -5,12 +5,14 @@ import lombok.*;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Null;
 import java.time.LocalDate;
 
 @Entity
 @Getter
 @Setter
 @NoArgsConstructor
+@ToString
 public class User extends BaseEntity {
 
     @Id
@@ -22,9 +24,25 @@ public class User extends BaseEntity {
     @Column(unique = true)
     private String email;
     @NotNull
-    private String role;
-    private String status;
+    private Role role;
     private String provider;
     private String providerId;
+    @Null
+    private String status;
     private LocalDate birth;
+    private String nickName;
+
+    @Builder
+    public User(Long userId, String password, String name, String email, Role role, String status, String provider, String providerId, LocalDate birth, String nickName){
+        this.userId = userId;
+        this.password = password;
+        this.name = name;
+        this.email = email;
+        this.role = role;
+        this.status = status;
+        this.provider = provider;
+        this.providerId = providerId;
+        this.birth = birth;
+        this.nickName = nickName;
+    }
 }
