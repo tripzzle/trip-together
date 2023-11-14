@@ -2,6 +2,8 @@ package com.tgd.trip.schedule.service;
 
 import com.tgd.trip.attraction.domain.Attraction;
 import com.tgd.trip.attraction.repository.AttractionRepository;
+import com.tgd.trip.global.exception.CustomException;
+import com.tgd.trip.global.exception.ErrorCode;
 import com.tgd.trip.global.s3.S3Uploader;
 import com.tgd.trip.photo.domain.Photo;
 import com.tgd.trip.schedule.domain.*;
@@ -36,27 +38,25 @@ public class ScheduleService {
         Schedule schedule = new Schedule(post.title(), post.content());
 
         post.days().forEach(dayDtoPost -> {
-                    Day day = new Day(dayDtoPost.date());
-                    schedule.addDays(day);
-                    dayDtoPost.dayAttractions().forEach(dayAttractionDto -> {
-                                Attraction attraction = attractionRepository.findById(dayAttractionDto.attractionId())
-                                        .orElseThrow(RuntimeException::new);
-                                DayAttraction dayAttraction = new DayAttraction(attraction, dayAttractionDto.memo());
-                                day.addDayAttraction(dayAttraction);
-                                dayAttractionRepository.save(dayAttraction);
-                            }
-                    );
-                }
-        );
+            Day day = new Day(dayDtoPost.date());
+            schedule.addDays(day);
+            dayDtoPost.dayAttractions().forEach(dayAttractionDto -> {
+                Attraction attraction = attractionRepository.findById(dayAttractionDto.attractionId())
+                        .orElseThrow(() -> new CustomException(ErrorCode.ATTRACTION_NOT_FOUND));
+                DayAttraction dayAttraction = new DayAttraction(attraction, dayAttractionDto.memo());
+                day.addDayAttraction(dayAttraction);
+                dayAttractionRepository.save(dayAttraction);
+            });
+        });
         scheduleRepository.save(schedule);
 
         return schedule;
     }
 
     @Transactional
-    public Schedule updateSchedule(Long id, ScheduleDto.Patch patch) {
+    public Schedule updateSchedule(Long scheduleId, ScheduleDto.Patch patch) {
         // 기존 스케줄 가져오기
-        Schedule schedule = scheduleRepository.findById(id).orElseThrow(RuntimeException::new);
+        Schedule schedule = getSchedule(scheduleId);
 
         // 받아온 day로 새로운 일자 만들기
         patch.days().forEach(dayDtoPatch -> {
@@ -87,7 +87,8 @@ public class ScheduleService {
     }
 
     public Schedule getSchedule(Long id) {
-        return scheduleRepository.findById(id).get();
+        return scheduleRepository.findById(id)
+                .orElseThrow(() -> new CustomException(ErrorCode.SCHEDULE_NOT_FOUND));
     }
 
     public void deleteSchedule(Long id) {
@@ -103,10 +104,13 @@ public class ScheduleService {
     @Transactional
     public void createPhoto(Long scheduleId, Long dayId, List<MultipartFile> files) {
         // 스케줄 가져오고 없으면 Exception
-        Schedule schedule = scheduleRepository.findById(scheduleId).orElseThrow(RuntimeException::new);
+        Schedule schedule = getSchedule(scheduleId);
 
         // 가져온 스케줄에 dayId가 있는지 확인하여 Day 객체 가져오기
-        Day day = schedule.getDays().stream().filter(d -> d.getDayId().equals(dayId)).findFirst().orElseThrow(RuntimeException::new);
+        Day day = schedule.getDays().stream()
+                .filter(d -> d.getDayId().equals(dayId))
+                .findFirst()
+                .orElseThrow(() -> new CustomException(ErrorCode.DAY_NOT_FOUND));
 
         // S3에 올리려는 파일들 올리고 리스트로 만들어 반환
         files.forEach(file -> {
@@ -120,7 +124,7 @@ public class ScheduleService {
     @Transactional
     public void createBookmark(Long scheduleId, Long userId) {
         User findUser = userService.getVerifyUser(userId);
-        Schedule findSchedule = scheduleRepository.findById(scheduleId).orElseThrow();
+        Schedule findSchedule = getSchedule(scheduleId);
         ScheduleBookmark scheduleBookmark = new ScheduleBookmark(findSchedule);
         findUser.addScheduleBookmark(scheduleBookmark);
         scheduleBookmarkRepository.save(scheduleBookmark);
@@ -129,7 +133,7 @@ public class ScheduleService {
     @Transactional
     public void deleteBookmark(Long scheduleId, Long userId) {
         User findUser = userService.getVerifyUser(userId);
-        Schedule findSchedule = scheduleRepository.findById(scheduleId).orElseThrow();
+        Schedule findSchedule = getSchedule(scheduleId);
         scheduleBookmarkRepository.deleteByUserAndSchedule(findUser, findSchedule);
     }
 }
