@@ -1,4 +1,4 @@
-package com.tgd.trip.global.config;
+package com.tgd.trip.global.s3;
 
 import com.amazonaws.auth.*;
 import com.amazonaws.services.s3.AmazonS3;
