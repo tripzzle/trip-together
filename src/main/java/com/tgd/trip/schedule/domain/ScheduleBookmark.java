@@ -21,4 +21,8 @@ public class ScheduleBookmark extends BaseEntity {
     @ManyToOne
     @JoinColumn(name = "schedule_id")
     private Schedule schedule;
+
+    public ScheduleBookmark(Schedule schedule) {
+        this.schedule = schedule;
+    }
 }

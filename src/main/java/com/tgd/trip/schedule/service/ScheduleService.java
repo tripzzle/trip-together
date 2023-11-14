@@ -6,8 +6,9 @@ import com.tgd.trip.global.s3.S3Uploader;
 import com.tgd.trip.photo.domain.Photo;
 import com.tgd.trip.schedule.domain.*;
 import com.tgd.trip.schedule.dto.ScheduleDto;
-import com.tgd.trip.schedule.repository.DayAttractionRepository;
-import com.tgd.trip.schedule.repository.ScheduleRepository;
+import com.tgd.trip.schedule.repository.*;
+import com.tgd.trip.user.domain.User;
+import com.tgd.trip.user.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
@@ -27,6 +28,8 @@ public class ScheduleService {
     private final AttractionRepository attractionRepository;
     private final DayAttractionRepository dayAttractionRepository;
     private final S3Uploader s3Uploader;
+    private final UserService userService;
+    private final ScheduleBookmarkRepository scheduleBookmarkRepository;
 
     @Transactional
     public Schedule createSchedule(ScheduleDto.Post post) {
@@ -112,5 +115,14 @@ public class ScheduleService {
             Photo photo = new Photo(filePath);
             day.addPhoto(photo);
         });
+    }
+
+    @Transactional
+    public void createBookmark(Long scheduleId, Long userId) {
+        User findUser = userService.getVerifyUser(userId);
+        Schedule findSchedule = scheduleRepository.findById(scheduleId).orElseThrow();
+        ScheduleBookmark scheduleBookmark = new ScheduleBookmark(findSchedule);
+        findUser.addScheduleBookmark(scheduleBookmark);
+        scheduleBookmarkRepository.save(scheduleBookmark);
     }
 }

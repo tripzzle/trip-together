@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -28,7 +29,7 @@ public class ScheduleController {
     public ResponseEntity<?> createSchedule(@RequestBody ScheduleDto.Post post) {
         log.info(String.valueOf(post));
         Schedule schedule = scheduleService.createSchedule(post);
-        return ResponseEntity.created(URI.create(String.format("api/schdule/%s", schedule.getScheduleId()))).build();
+        return ResponseEntity.created(URI.create(String.format("api/schedule/%s", schedule.getScheduleId()))).build();
     }
 
     @PatchMapping("{schedule-id}")
@@ -70,5 +71,12 @@ public class ScheduleController {
         scheduleService.createPhoto(scheduleId, dayId, files);
 
         return ResponseEntity.ok().build();
+    }
+
+    @PostMapping(value = "{schedule-id}/wish")
+    public ResponseEntity<?> createScheduleBookmark(@PathVariable("schedule-id") Long scheduleId,
+                                                    @RequestParam("userId") Long userId){
+        scheduleService.createBookmark(scheduleId, userId);
+        return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 }
