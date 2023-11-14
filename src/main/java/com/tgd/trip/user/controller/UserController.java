@@ -4,9 +4,12 @@ import com.tgd.trip.jwt.JwtTokenProvider;
 import com.tgd.trip.security.SecurityUser;
 import com.tgd.trip.user.domain.User;
 import com.tgd.trip.user.repository.UserRepository;
+import com.tgd.trip.user.service.OAuth2UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
@@ -19,6 +22,13 @@ public class UserController {
     private final PasswordEncoder passwordEncoder;
     private final JwtTokenProvider jwtTokenProvider;
     private final UserRepository reop;
+
+//    private final OAuth2UserService service;
+//    public String login(OAuth2UserRequest userRequest){
+//        OAuth2User user = service.loadUser(userRequest);
+//        String jwtToken = jwtTokenProvider.createToken(user.getUserId().toString(), user.getRole());
+//        return jwtToken;
+//    }
 
     // 로그인
 //    @PostMapping("/login")
