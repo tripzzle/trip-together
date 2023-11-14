@@ -125,4 +125,11 @@ public class ScheduleService {
         findUser.addScheduleBookmark(scheduleBookmark);
         scheduleBookmarkRepository.save(scheduleBookmark);
     }
+
+    @Transactional
+    public void deleteBookmark(Long scheduleId, Long userId) {
+        User findUser = userService.getVerifyUser(userId);
+        Schedule findSchedule = scheduleRepository.findById(scheduleId).orElseThrow();
+        scheduleBookmarkRepository.deleteByUserAndSchedule(findUser, findSchedule);
+    }
 }

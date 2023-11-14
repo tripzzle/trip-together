@@ -75,8 +75,15 @@ public class ScheduleController {
 
     @PostMapping(value = "{schedule-id}/wish")
     public ResponseEntity<?> createScheduleBookmark(@PathVariable("schedule-id") Long scheduleId,
-                                                    @RequestParam("userId") Long userId){
+                                                    @RequestParam("userId") Long userId) {
         scheduleService.createBookmark(scheduleId, userId);
         return ResponseEntity.status(HttpStatus.CREATED).build();
+    }
+
+    @DeleteMapping(value = "{schedule-id}/wish")
+    public ResponseEntity<?> deleteScheduleBookmark(@PathVariable("schedule-id") Long scheduleId,
+                                                    @RequestParam("userId") Long userId) {
+        scheduleService.deleteBookmark(scheduleId, userId);
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 }
