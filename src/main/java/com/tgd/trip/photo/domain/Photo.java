@@ -21,4 +21,8 @@ public class Photo extends BaseEntity {
     private Day day;
     @NotNull
     private String imgUrl;
+
+    public Photo(String imgUrl) {
+        this.imgUrl = imgUrl;
+    }
 }

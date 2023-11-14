@@ -2,24 +2,31 @@ package com.tgd.trip.schedule.service;
 
 import com.tgd.trip.attraction.domain.Attraction;
 import com.tgd.trip.attraction.repository.AttractionRepository;
+import com.tgd.trip.global.s3.S3Uploader;
+import com.tgd.trip.photo.domain.Photo;
 import com.tgd.trip.schedule.domain.*;
 import com.tgd.trip.schedule.dto.ScheduleDto;
-import com.tgd.trip.schedule.repository.*;
+import com.tgd.trip.schedule.repository.DayAttractionRepository;
+import com.tgd.trip.schedule.repository.ScheduleRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.transaction.Transactional;
 import java.util.List;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class ScheduleService {
 
     private final ScheduleRepository scheduleRepository;
     private final AttractionRepository attractionRepository;
     private final DayAttractionRepository dayAttractionRepository;
+    private final S3Uploader s3Uploader;
 
     @Transactional
     public Schedule createSchedule(ScheduleDto.Post post) {
@@ -88,5 +95,22 @@ public class ScheduleService {
     public List<Schedule> getSchedules(String keyword, String sort, Pageable pageable) {
         List<Schedule> schedules = scheduleRepository.findAllByTitleContaining(keyword, PageRequest.of(pageable.getPageNumber(), pageable.getPageSize()));
         return schedules;
+    }
+
+    @Transactional
+    public void createPhoto(Long scheduleId, Long dayId, List<MultipartFile> files) {
+        // 스케줄 가져오고 없으면 Exception
+        Schedule schedule = scheduleRepository.findById(scheduleId).orElseThrow(RuntimeException::new);
+
+        // 가져온 스케줄에 dayId가 있는지 확인하여 Day 객체 가져오기
+        Day day = schedule.getDays().stream().filter(d -> d.getDayId().equals(dayId)).findFirst().orElseThrow(RuntimeException::new);
+
+        // S3에 올리려는 파일들 올리고 리스트로 만들어 반환
+        files.forEach(file -> {
+            String savedFileName = s3Uploader.saveUploadFile(file);
+            String filePath = s3Uploader.getFilePath(savedFileName);
+            Photo photo = new Photo(filePath);
+            day.addPhoto(photo);
+        });
     }
 }

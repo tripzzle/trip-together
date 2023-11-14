@@ -10,6 +10,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.net.URI;
 import java.util.List;
@@ -34,7 +35,7 @@ public class ScheduleController {
     public ResponseEntity<?> updateSchedule(@PathVariable("schedule-id") Long id,
                                             @RequestBody ScheduleDto.Patch patch) {
         log.info(String.valueOf(patch));
-        Schedule schedule = scheduleService.updateSchedule(id,patch);
+        Schedule schedule = scheduleService.updateSchedule(id, patch);
         ScheduleDto.Response response = scheduleMapper.entityToResponse(schedule);
         return ResponseEntity.ok(response);
     }
@@ -60,5 +61,14 @@ public class ScheduleController {
     public ResponseEntity<?> deleteSchedule(@PathVariable("schedule-id") Long id) {
         scheduleService.deleteSchedule(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping(value = "{schedule-id}/day/{day-id}/upload")
+    public ResponseEntity<?> upload(@PathVariable("schedule-id") Long scheduleId,
+                                    @PathVariable("day-id") Long dayId,
+                                    @RequestParam(value = "image", required = false) List<MultipartFile> files) {
+        scheduleService.createPhoto(scheduleId, dayId, files);
+
+        return ResponseEntity.ok().build();
     }
 }
