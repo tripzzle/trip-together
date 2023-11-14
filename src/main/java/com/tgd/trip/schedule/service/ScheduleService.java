@@ -2,13 +2,9 @@ package com.tgd.trip.schedule.service;
 
 import com.tgd.trip.attraction.domain.Attraction;
 import com.tgd.trip.attraction.repository.AttractionRepository;
-import com.tgd.trip.schedule.domain.Day;
-import com.tgd.trip.schedule.domain.DayAttraction;
-import com.tgd.trip.schedule.domain.Schedule;
+import com.tgd.trip.schedule.domain.*;
 import com.tgd.trip.schedule.dto.ScheduleDto;
-import com.tgd.trip.schedule.repository.DayAttractionRepository;
-import com.tgd.trip.schedule.repository.DayRepository;
-import com.tgd.trip.schedule.repository.ScheduleRepository;
+import com.tgd.trip.schedule.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -22,7 +18,6 @@ import java.util.List;
 public class ScheduleService {
 
     private final ScheduleRepository scheduleRepository;
-    private final DayRepository dayRepository;
     private final AttractionRepository attractionRepository;
     private final DayAttractionRepository dayAttractionRepository;
 
@@ -50,14 +45,22 @@ public class ScheduleService {
 
     @Transactional
     public Schedule updateSchedule(Long id, ScheduleDto.Patch patch) {
+        // 기존 스케줄 가져오기
         Schedule schedule = scheduleRepository.findById(id).orElseThrow(RuntimeException::new);
 
-        schedule.getDays().clear();
-        scheduleRepository.save(schedule);
-
+        // 받아온 day로 새로운 일자 만들기
         patch.days().forEach(dayDtoPatch -> {
-                    Day day = new Day(dayDtoPatch.date());
-                    schedule.addDays(day);
+                    // 기존에 존재하는 일자 가져오기
+                    Day day = schedule.getDays()
+                            .stream()
+                            .filter(d -> d.getDate().equals(dayDtoPatch.date()))
+                            .findFirst()
+                            .orElseThrow(() -> new RuntimeException("해당 일자가 없습니다."));
+
+                    // 갖고있는 dayAttractions의 id로 in절을 delete
+                    dayAttractionRepository.deleteAllByIds(day.getDayAttractions().stream().map(DayAttraction::getDayAttractionId).toList());
+
+                    // 수정된 관광지들 insert
                     dayDtoPatch.dayAttractions().forEach(dayAttractionDto -> {
                                 Attraction attraction = attractionRepository.findById(dayAttractionDto.attractionId())
                                         .orElseThrow(RuntimeException::new);
@@ -83,7 +86,7 @@ public class ScheduleService {
     }
 
     public List<Schedule> getSchedules(String keyword, String sort, Pageable pageable) {
-        List<Schedule> schedules = scheduleRepository.findAllByTitleContaining(keyword, PageRequest.of(pageable.getPageNumber(),pageable.getPageSize()));
+        List<Schedule> schedules = scheduleRepository.findAllByTitleContaining(keyword, PageRequest.of(pageable.getPageNumber(), pageable.getPageSize()));
         return schedules;
     }
 }
