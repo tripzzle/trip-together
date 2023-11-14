@@ -47,7 +47,6 @@ public class OAuth2UserService extends DefaultOAuth2UserService {
         } else if (userRequest.getClientRegistration().getRegistrationId().equals("kakao")) {
             oAuth2UserInfo = new KakaoUserInfo((Map) oAuth2User.getAttributes().get("kakao_account"),
                     String.valueOf(oAuth2User.getAttributes().get("id")));
-            System.out.println("카카오유저정ㄴㅁ어ㅣㅏㅁ너이ㅏ머" + (Map) oAuth2User.getAttributes().get("kakao_account"));
         } else {
             log.info("우리는 구글과 페이스북만 지원합니다.");
         }
@@ -73,17 +72,16 @@ public class OAuth2UserService extends DefaultOAuth2UserService {
                     .password("githere")
                     .providerId(providerId)
                     .provider(provider)
-                    .role(Role.ADMIN)
+                    .role(Role.USER)
                     .build();
             userRepository.save(user);
 //            return new PrincipalDetails(user, oAuth2User.getAttributes());    // TODO: NPE 발생
 
 
         }
-        String jwtToken = jwtTokenProvider.createToken(user.getUserId().toString(), user.getRole());
-        System.out.println("토큰 만듬:::::::::::::::::::::::::" + jwtToken);
+        Map<String, Object> attributes = oAuth2User.getAttributes();
 
-        return oAuth2User;
+        return CustomOAuth2User.of(user, attributes);
     }
 
 }

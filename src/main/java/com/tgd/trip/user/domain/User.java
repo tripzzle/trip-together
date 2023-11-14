@@ -28,21 +28,22 @@ public class User extends BaseEntity {
     private String provider;
     private String providerId;
     @Null
-    private String status;
+    private UserStatus status=UserStatus.ACTIVE;
     private LocalDate birth;
     private String nickName;
+    private Boolean sex;
 
     @Builder
-    public User(Long userId, String password, String name, String email, Role role, String status, String provider, String providerId, LocalDate birth, String nickName){
+    public User(Long userId, String password, String name, String email, Role role, String provider, String providerId, LocalDate birth, String nickName,  Boolean sex){
         this.userId = userId;
         this.password = password;
         this.name = name;
         this.email = email;
         this.role = role;
-        this.status = status;
         this.provider = provider;
         this.providerId = providerId;
         this.birth = birth;
         this.nickName = nickName;
+        this.sex = sex;
     }
 }
