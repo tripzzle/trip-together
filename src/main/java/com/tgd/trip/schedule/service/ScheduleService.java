@@ -7,6 +7,7 @@ import com.tgd.trip.global.exception.ErrorCode;
 import com.tgd.trip.global.s3.S3Uploader;
 import com.tgd.trip.photo.domain.Photo;
 import com.tgd.trip.schedule.domain.*;
+import com.tgd.trip.schedule.dto.DayAttractionDto;
 import com.tgd.trip.schedule.dto.ScheduleDto;
 import com.tgd.trip.schedule.repository.*;
 import com.tgd.trip.user.domain.User;
@@ -27,26 +28,23 @@ import java.util.List;
 public class ScheduleService {
 
     private final ScheduleRepository scheduleRepository;
-    private final AttractionRepository attractionRepository;
-    private final DayAttractionRepository dayAttractionRepository;
+    private final ScheduleBookmarkRepository scheduleBookmarkRepository;
+    private final DayAttractionService dayAttractionService;
     private final S3Uploader s3Uploader;
     private final UserService userService;
-    private final ScheduleBookmarkRepository scheduleBookmarkRepository;
 
     @Transactional
     public Schedule createSchedule(ScheduleDto.Post post) {
+        // 일정 이름, 내용을 가지는 객체 생성
         Schedule schedule = new Schedule(post.title(), post.content());
 
         post.days().forEach(dayDtoPost -> {
+            // 새로운 일자 객체 생성 및 일정 객체와 연결
             Day day = new Day(dayDtoPost.date());
             schedule.addDays(day);
-            dayDtoPost.dayAttractions().forEach(dayAttractionDto -> {
-                Attraction attraction = attractionRepository.findById(dayAttractionDto.attractionId())
-                        .orElseThrow(() -> new CustomException(ErrorCode.ATTRACTION_NOT_FOUND));
-                DayAttraction dayAttraction = new DayAttraction(attraction, dayAttractionDto.memo());
-                day.addDayAttraction(dayAttraction);
-                dayAttractionRepository.save(dayAttraction);
-            });
+
+            dayDtoPost.dayAttractions()
+                    .forEach(dayAttractionDto -> dayAttractionService.update(dayAttractionDto, day));
         });
         scheduleRepository.save(schedule);
 
@@ -60,31 +58,29 @@ public class ScheduleService {
 
         // 받아온 day로 새로운 일자 만들기
         patch.days().forEach(dayDtoPatch -> {
-                    // 기존에 존재하는 일자 가져오기
-                    Day day = schedule.getDays()
-                            .stream()
-                            .filter(d -> d.getDate().equals(dayDtoPatch.date()))
-                            .findFirst()
-                            .orElseThrow(() -> new RuntimeException("해당 일자가 없습니다."));
+            // 기존에 존재하는 일자 가져오기
+            Day day = schedule.getDays()
+                    .stream()
+                    .filter(d -> d.getDate().equals(dayDtoPatch.date()))
+                    .findFirst()
+                    .orElseThrow(() -> new CustomException(ErrorCode.DAY_NOT_FOUND));
 
-                    // 갖고있는 dayAttractions의 id로 in절을 delete
-                    dayAttractionRepository.deleteAllByIds(day.getDayAttractions().stream().map(DayAttraction::getDayAttractionId).toList());
+            // 갖고있는 dayAttractions의 id로 in절을 delete
+            List<Long> dayAttractionIds = day.getDayAttractions()
+                    .stream()
+                    .map(DayAttraction::getDayAttractionId)
+                    .toList();
+            dayAttractionService.deleteAll(dayAttractionIds);
 
-                    // 수정된 관광지들 insert
-                    dayDtoPatch.dayAttractions().forEach(dayAttractionDto -> {
-                                Attraction attraction = attractionRepository.findById(dayAttractionDto.attractionId())
-                                        .orElseThrow(RuntimeException::new);
-                                DayAttraction dayAttraction = new DayAttraction(attraction, dayAttractionDto.memo());
-                                day.addDayAttraction(dayAttraction);
-                                dayAttractionRepository.save(dayAttraction);
-                            }
-                    );
-                }
-        );
+            // 수정된 관광지들 insert
+            dayDtoPatch.dayAttractions()
+                    .forEach(dayAttractionDto -> dayAttractionService.update(dayAttractionDto, day));
+        });
         scheduleRepository.save(schedule);
 
         return schedule;
     }
+
 
     public Schedule getSchedule(Long id) {
         return scheduleRepository.findById(id)
