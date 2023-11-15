@@ -40,7 +40,7 @@ public class UserPrincipal implements UserDetails, OAuth2User {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return AuthorityUtils.getAuthorities(List.of(user.getRole().toString()));
+        return AuthorityUtils.getAuthorities(List.of(user.getRoles().toString()));
     }
 
     @Override

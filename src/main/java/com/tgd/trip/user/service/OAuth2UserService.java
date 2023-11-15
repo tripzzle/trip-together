@@ -5,13 +5,18 @@ import com.tgd.trip.user.domain.*;
 import com.tgd.trip.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
+import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -24,6 +29,7 @@ public class OAuth2UserService extends DefaultOAuth2UserService {
 
     //로그인 필요한 url 요청시 여기로 넘어옴
     @Override
+    @Transactional
     public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
         log.info("userRequest: {}", userRequest);
 
@@ -45,8 +51,7 @@ public class OAuth2UserService extends DefaultOAuth2UserService {
         } else if (userRequest.getClientRegistration().getRegistrationId().equals("naver")) {
             oAuth2UserInfo = new NaverUserInfo((Map) oAuth2User.getAttributes().get("response"));
         } else if (userRequest.getClientRegistration().getRegistrationId().equals("kakao")) {
-            oAuth2UserInfo = new KakaoUserInfo((Map) oAuth2User.getAttributes().get("kakao_account"),
-                    String.valueOf(oAuth2User.getAttributes().get("id")));
+            oAuth2UserInfo = new KakaoUserInfo((Map) oAuth2User.getAttributes().get("kakao_account"));
         } else {
             log.info("우리는 구글과 페이스북만 지원합니다.");
         }
@@ -54,7 +59,7 @@ public class OAuth2UserService extends DefaultOAuth2UserService {
 
 
         String provider = oAuth2UserInfo.getProvider(); //google , naver, facebook etc
-        String providerId = oAuth2UserInfo.getProviderId();
+        String providerId = clientRegistration.getProviderDetails().getUserInfoEndpoint().getUserNameAttributeName();
         String name = provider + "_" + oAuth2UserInfo.getName() + "_" + providerId;
         String email = oAuth2UserInfo.getEmail();
 
@@ -62,26 +67,27 @@ public class OAuth2UserService extends DefaultOAuth2UserService {
         log.info("name: {}", name);
         Optional<User> optionalUser = userRepository.findByEmail(email);
 
-        User user = optionalUser.get();
+        User user = null;
+        System.out.println(user);
         if (optionalUser.isPresent()) {
             log.info("로그인을 이미 했음, 자동회원가입이 되어있다.");
+            user = optionalUser.get();
         } else {
             user = User.builder()
+                    .password("githere")
                     .name(name)
                     .email(email)
-                    .password("githere")
+                    .roles(List.of(Role.USER.toString()))
                     .providerId(providerId)
                     .provider(provider)
-                    .role(Role.USER)
                     .build();
             userRepository.save(user);
-//            return new PrincipalDetails(user, oAuth2User.getAttributes());    // TODO: NPE 발생
-
-
         }
         Map<String, Object> attributes = oAuth2User.getAttributes();
-
-        return CustomOAuth2User.of(user, attributes);
+        OAuthAttributes authAttributes = OAuthAttributes.of(provider, providerId, attributes);
+        log.info("attributes : {}", attributes);
+        log.info("authAttributes : {}", authAttributes);
+        return CustomOAuth2User.of(user, attributes, authAttributes);
     }
 
 }

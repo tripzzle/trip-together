@@ -4,11 +4,14 @@ import com.tgd.trip.jwt.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.crypto.factory.PasswordEncoderFactories;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserService;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
@@ -32,6 +35,11 @@ public class SecurityConfig {
     private final OAuth2LoginFailureHandler oAuth2LoginFailureHandler;
 
     @Bean
+    public static PasswordEncoder passwordEncoder() {
+        return PasswordEncoderFactories.createDelegatingPasswordEncoder();
+    }
+
+    @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
                 .httpBasic().disable()  // 기본 HTTP 인증 방식을 사용하지 않습니다.
@@ -50,14 +58,14 @@ public class SecurityConfig {
 
                 .and()
                 .authorizeRequests() // 요청에 대한 사용 권한 체크 시작
-                .antMatchers("/api/user/**").authenticated() // "/api/gest/**"로 시작하는 URL은 인증 없이 접근 허용
-                .anyRequest().permitAll() // 그 외의 모든 요청은 인증이 필요함
+                .antMatchers(HttpMethod.GET,"/api/user/**").authenticated()
+                .anyRequest().permitAll()
+                .and().addFilterBefore(new JwtAuthenticationFilter(jwtTokenProvider), UsernamePasswordAuthenticationFilter.class)
 
-                .and()
                 .oauth2Login()
                 .successHandler(oAuth2LoginSuccessHandler)  // OAuth2 로그인 성공 시 처리를 담당하는 핸들러를 지정합니다.
                 .failureHandler(oAuth2LoginFailureHandler)  // OAuth2 로그인 실패 시 처리를 담당하는 핸들러를 지정합니다.
-                .userInfoEndpoint().userService(oAuth2UserService);  // OAuth2 로그인 시 사용자 정보를 저장하고 관리하는 서비스를 지정합니다.
+                .userInfoEndpoint().userService(oAuth2UserService);// OAuth2 로그인 시 사용자 정보를 저장하고 관리하는 서비스를 지정합니다.
 
         return http.build();
     }

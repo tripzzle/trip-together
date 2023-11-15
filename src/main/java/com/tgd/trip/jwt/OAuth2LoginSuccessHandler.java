@@ -7,8 +7,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -30,22 +32,22 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
                                         HttpServletResponse response,
                                         Authentication authentication) throws IOException, ServletException {
         log.info("OAuth login 성공");
+        log.info("뭔가뭔가날라옴 : {}", authentication);
         CustomOAuth2User oAuth2User = (CustomOAuth2User) authentication.getPrincipal();
         loginSuccess(response, oAuth2User);
     }
 
     private void loginSuccess(HttpServletResponse response, CustomOAuth2User oAuth2User) throws IOException {
-        String accessToken = jwtTokenProvider.createToken(oAuth2User.getEmail(), oAuth2User.getRole());
+        String accessToken = jwtTokenProvider.createToken(oAuth2User.getEmail(), oAuth2User.getRoles());
         response.setHeader("Authorization", "Bearer " + accessToken);
         log.info("oauth email : {} login success", oAuth2User.getEmail());
         log.info("accessToken : {}", accessToken);
-
+        response.getWriter().println(accessToken);
         login(accessToken);
     }
 
     public ResponseEntity<?> login(String accessToken) {
-
         String jwt = accessToken;
-        return ResponseEntity.ok(new LoginResponse(jwt));
+        return ResponseEntity.ok(jwt);
     }
 }
