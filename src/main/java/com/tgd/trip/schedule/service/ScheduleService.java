@@ -85,6 +85,7 @@ public class ScheduleService {
                 .orElseThrow(() -> new CustomException(ErrorCode.SCHEDULE_NOT_FOUND));
     }
 
+    @Transactional
     public void deleteSchedule(Long id) {
         Schedule schedule = getSchedule(id);
         scheduleRepository.delete(schedule);

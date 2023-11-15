@@ -12,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import javax.transaction.Transactional;
 import java.util.List;
 
 @RequiredArgsConstructor
@@ -22,6 +23,7 @@ public class DayAttractionService {
     private final DayAttractionRepository dayAttractionRepository;
     private final AttractionRepository attractionRepository;
 
+    @Transactional
     public void update(DayAttractionDto dayAttractionDto, Day day) {
         // 관광지 정보 찾아오기
         Attraction attraction = attractionRepository.findById(dayAttractionDto.attractionId())
@@ -32,6 +34,7 @@ public class DayAttractionService {
         dayAttractionRepository.save(dayAttraction);
     }
 
+    @Transactional
     public void deleteAll(List<Long> dayAttractionIds) {
         dayAttractionRepository.deleteAllByIds(dayAttractionIds);
     }
