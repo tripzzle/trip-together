@@ -3,9 +3,13 @@ package com.tgd.trip.user.controller;
 import com.tgd.trip.jwt.JwtTokenProvider;
 import com.tgd.trip.security.SecurityUser;
 import com.tgd.trip.user.domain.User;
+import com.tgd.trip.user.domain.UserPrincipal;
 import com.tgd.trip.user.repository.UserRepository;
 import com.tgd.trip.user.service.OAuth2UserService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
@@ -18,36 +22,21 @@ import java.util.Optional;
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/api/user")
+@Slf4j
 public class UserController {
     private final PasswordEncoder passwordEncoder;
     private final JwtTokenProvider jwtTokenProvider;
     private final UserRepository reop;
 
-//    private final OAuth2UserService service;
-//    public String login(OAuth2UserRequest userRequest){
-//        OAuth2User user = service.loadUser(userRequest);
-//        String jwtToken = jwtTokenProvider.createToken(user.getUserId().toString(), user.getRole());
-//        return jwtToken;
-//    }
+    @GetMapping("/login/test")
+    public ResponseEntity<String> test(@AuthenticationPrincipal UserPrincipal securityUser){
+        log.info("테스트 요청 토큰 : {}", securityUser);
+        if (securityUser.getAuthorities().stream().anyMatch(auth -> auth.getAuthority().equals("ROLE_USER")))
+            return ResponseEntity.ok("OK");
+        else
+            return ResponseEntity.ok("fail");
+    }
 
-    // 로그인
-//    @PostMapping("/login")
-//    public String login(@RequestBody Map<String, String> user, @AuthenticationPrincipal SecurityUser securityUser) {
-////        Member member = mapper.findByEmail(user.get("email"))
-////                .orElseThrow(() -> new IllegalArgumentException("가입 되지 않은 이메일입니다."));
-////        if (!passwordEncoder.matches(user.get("password"), member.getPassword())) {
-////            throw new IllegalArgumentException("이메일 또는 비밀번호가 맞지 않습니다.");
-////        }
-////
-////        return jwtTokenProvider.createToken(member.getEmail(), member.getRole());
-//
-//        Optional<User> member = reop.findByEmail(user.get("id"));
-//        if(!passwordEncoder.matches(user.get("password"), member.get().getPassword())){
-//            throw new IllegalArgumentException("이메일 또는 비밀번호가 맞지 않습니다.");
-//        }
-//        System.out.println(member.get().getRole());
-//        return jwtTokenProvider.createToken(member.get().getEmail(), member.get().getRole());
-//    }
     @GetMapping("/test")
     public String testApi(@AuthenticationPrincipal SecurityUser securityUser) {
 
