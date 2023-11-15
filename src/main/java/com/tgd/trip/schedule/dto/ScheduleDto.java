@@ -23,9 +23,11 @@ public class ScheduleDto {
     }
 
     @Builder
-    public record Response(String title, String content, List<DayDto.Response> dayResponses, Boolean viewYn) {
+    public record Response(Long scheduleId, String title, String content, List<DayDto.Response> dayResponses,
+                           Boolean viewYn) {
     }
 
-    public record SimpleResponse(String title, String content, String imgUrl, List<DayDto.DateResponse> days) {
+    public record SimpleResponse(Long scheduleId, String title, String content, String imgUrl,
+                                 List<DayDto.DateResponse> days) {
     }
 }

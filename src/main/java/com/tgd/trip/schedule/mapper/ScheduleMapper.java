@@ -13,6 +13,7 @@ public class ScheduleMapper {
 
     public ScheduleDto.Response entityToResponse(Schedule schedule) {
         return ScheduleDto.Response.builder()
+                .scheduleId(schedule.getScheduleId())
                 .title(schedule.getTitle())
                 .content(schedule.getContent())
                 .viewYn(schedule.getViewYn())
@@ -25,6 +26,7 @@ public class ScheduleMapper {
     public List<ScheduleDto.SimpleResponse> simpleResponses(List<Schedule> schedules) {
         return schedules.stream().map(schedule ->
                 new ScheduleDto.SimpleResponse(
+                        schedule.getScheduleId(),
                         schedule.getTitle(),
                         schedule.getContent(),
                         schedule.getImgUrl(),

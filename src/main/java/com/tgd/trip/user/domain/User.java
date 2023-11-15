@@ -2,15 +2,11 @@ package com.tgd.trip.user.domain;
 
 import com.tgd.trip.global.BaseEntity;
 import lombok.*;
-import org.hibernate.annotations.BatchSize;
 
 import javax.persistence.*;
-import javax.transaction.Transactional;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Null;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
 
 @Entity
 @Getter
@@ -35,6 +31,10 @@ public class User extends BaseEntity {
     private UserStatus status=UserStatus.ACTIVE;
     private LocalDate birth;
     private String nickName;
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<ScheduleBookmark> scheduleBookmarks = new ArrayList<>();
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<AttractionBookmark> attractionBookmarks = new ArrayList<>();
     private Boolean sex;
 
     @Builder
@@ -59,5 +59,19 @@ public class User extends BaseEntity {
         this.roles = roles;
         this.provider = provider;
         this.providerId = providerId;
+    }
+
+    public void addScheduleBookmark(ScheduleBookmark scheduleBookmark) {
+        if (!this.scheduleBookmarks.contains(scheduleBookmark)) {
+            scheduleBookmarks.add(scheduleBookmark);
+        }
+        scheduleBookmark.setUser(this);
+    }
+
+    public void addAttractionBookmark(AttractionBookmark attractionBookmark) {
+        if (!this.attractionBookmarks.contains(attractionBookmark)) {
+            attractionBookmarks.add(attractionBookmark);
+        }
+        attractionBookmark.setUser(this);
     }
 }

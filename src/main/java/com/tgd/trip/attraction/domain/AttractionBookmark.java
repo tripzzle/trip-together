@@ -21,4 +21,8 @@ public class AttractionBookmark extends BaseEntity {
     @ManyToOne
     @JoinColumn(name = "attraction_id")
     private Attraction attraction;
+
+    public AttractionBookmark(Attraction attraction) {
+        this.attraction = attraction;
+    }
 }

@@ -8,8 +8,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.net.URI;
 import java.util.List;
@@ -27,14 +29,14 @@ public class ScheduleController {
     public ResponseEntity<?> createSchedule(@RequestBody ScheduleDto.Post post) {
         log.info(String.valueOf(post));
         Schedule schedule = scheduleService.createSchedule(post);
-        return ResponseEntity.created(URI.create(String.format("api/schdule/%s", schedule.getScheduleId()))).build();
+        return ResponseEntity.created(URI.create(String.format("api/schedule/%s", schedule.getScheduleId()))).build();
     }
 
     @PatchMapping("{schedule-id}")
     public ResponseEntity<?> updateSchedule(@PathVariable("schedule-id") Long id,
                                             @RequestBody ScheduleDto.Patch patch) {
         log.info(String.valueOf(patch));
-        Schedule schedule = scheduleService.updateSchedule(id,patch);
+        Schedule schedule = scheduleService.updateSchedule(id, patch);
         ScheduleDto.Response response = scheduleMapper.entityToResponse(schedule);
         return ResponseEntity.ok(response);
     }
@@ -60,5 +62,28 @@ public class ScheduleController {
     public ResponseEntity<?> deleteSchedule(@PathVariable("schedule-id") Long id) {
         scheduleService.deleteSchedule(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping(value = "{schedule-id}/day/{day-id}/upload")
+    public ResponseEntity<?> upload(@PathVariable("schedule-id") Long scheduleId,
+                                    @PathVariable("day-id") Long dayId,
+                                    @RequestParam(value = "image", required = false) List<MultipartFile> files) {
+        scheduleService.createPhoto(scheduleId, dayId, files);
+
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping(value = "{schedule-id}/wish")
+    public ResponseEntity<?> createScheduleBookmark(@PathVariable("schedule-id") Long scheduleId,
+                                                    @RequestParam("userId") Long userId) {
+        scheduleService.createBookmark(scheduleId, userId);
+        return ResponseEntity.status(HttpStatus.CREATED).build();
+    }
+
+    @DeleteMapping(value = "{schedule-id}/wish")
+    public ResponseEntity<?> deleteScheduleBookmark(@PathVariable("schedule-id") Long scheduleId,
+                                                    @RequestParam("userId") Long userId) {
+        scheduleService.deleteBookmark(scheduleId, userId);
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 }
