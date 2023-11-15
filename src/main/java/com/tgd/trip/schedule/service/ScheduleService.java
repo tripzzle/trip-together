@@ -1,15 +1,13 @@
 package com.tgd.trip.schedule.service;
 
-import com.tgd.trip.attraction.domain.Attraction;
-import com.tgd.trip.attraction.repository.AttractionRepository;
 import com.tgd.trip.global.exception.CustomException;
 import com.tgd.trip.global.exception.ErrorCode;
 import com.tgd.trip.global.s3.S3Uploader;
 import com.tgd.trip.photo.domain.Photo;
 import com.tgd.trip.schedule.domain.*;
-import com.tgd.trip.schedule.dto.DayAttractionDto;
 import com.tgd.trip.schedule.dto.ScheduleDto;
-import com.tgd.trip.schedule.repository.*;
+import com.tgd.trip.schedule.repository.ScheduleBookmarkRepository;
+import com.tgd.trip.schedule.repository.ScheduleRepository;
 import com.tgd.trip.user.domain.User;
 import com.tgd.trip.user.service.UserService;
 import lombok.RequiredArgsConstructor;
