@@ -6,20 +6,10 @@ import java.util.List;
 
 public class ScheduleDto {
 
-    public record Post(String title,
-                       String content,
-                       Boolean viewYn,
-                       String imgUrl,
-                       List<DayDto.Post> days
-    ) {
+    public record Post(String title, String content, Boolean viewYn, String imgUrl, List<DayDto.Post> days) {
     }
 
-    public record Patch(String title,
-                        String content,
-                        Boolean viewYn,
-                        String imgUrl,
-                        List<DayDto.Patch> days
-    ) {
+    public record Patch(String title, String content, Boolean viewYn, String imgUrl, List<DayDto.Patch> days) {
     }
 
     @Builder

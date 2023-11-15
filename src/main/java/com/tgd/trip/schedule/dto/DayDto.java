@@ -7,19 +7,15 @@ import java.util.List;
 
 public class DayDto {
 
-    public record Post(LocalDate date, List<DayAttractionDto> dayAttractions){
-
-
+    public record Post(LocalDate date, List<DayAttractionDto> dayAttractions) {
     }
 
-    public record Patch(LocalDate date, List<DayAttractionDto> dayAttractions){
-
-
+    public record Patch(LocalDate date, List<DayAttractionDto> dayAttractions) {
     }
-    public record Response(LocalDate date, List<AttractionDto.Response> attractions){
 
+    public record Response(LocalDate date, List<AttractionDto.Response> attractions) {
     }
-    public record DateResponse(LocalDate date){
 
+    public record DateResponse(LocalDate date) {
     }
 }
