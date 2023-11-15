@@ -29,8 +29,9 @@ public class UserController {
     private final UserRepository reop;
 
     @GetMapping("/login/test")
-    public ResponseEntity<String> test(@AuthenticationPrincipal UserPrincipal securityUser){
+    public ResponseEntity<String> test(@AuthenticationPrincipal SecurityUser securityUser){
         log.info("테스트 요청 토큰 : {}", securityUser);
+        log.info(securityUser.getAuthorities().stream().toList().toString());
         if (securityUser.getAuthorities().stream().anyMatch(auth -> auth.getAuthority().equals("ROLE_USER")))
             return ResponseEntity.ok("OK");
         else
