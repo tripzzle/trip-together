@@ -17,23 +17,29 @@ public class ScheduleMapper {
                 .title(schedule.getTitle())
                 .content(schedule.getContent())
                 .viewYn(schedule.getViewYn())
-                .dayResponses(schedule.getDays().stream().map(
-                        day -> new DayDto.Response(day.getDate(), day.getDayAttractions().stream().map(dayAttraction -> new AttractionDto.Response(dayAttraction.getAttraction())).toList())
-                ).toList())
+                .dayResponses(
+                        schedule.getDays().stream()
+                                .map(day -> new DayDto.Response(
+                                        day.getDayId(),
+                                        day.getDate(),
+                                        day.getDayAttractions().stream()
+                                                .map(dayAttraction -> new AttractionDto.Response(dayAttraction.getAttraction()))
+                                                .toList()))
+                                .toList())
                 .build();
     }
 
     public List<ScheduleDto.SimpleResponse> simpleResponses(List<Schedule> schedules) {
-        return schedules.stream().map(schedule ->
-                new ScheduleDto.SimpleResponse(
+        return schedules.stream()
+                .map(schedule -> new ScheduleDto.SimpleResponse(
                         schedule.getScheduleId(),
                         schedule.getTitle(),
                         schedule.getContent(),
                         schedule.getImgUrl(),
-                        schedule.getDays().stream().map(day ->
-                                        new DayDto.DateResponse(day.getDate()))
-                                .toList())
-        ).toList();
+                        schedule.getDays().stream()
+                                .map(day -> new DayDto.DateResponse(day.getDayId(), day.getDate()))
+                                .toList()))
+                .toList();
     }
 
 }

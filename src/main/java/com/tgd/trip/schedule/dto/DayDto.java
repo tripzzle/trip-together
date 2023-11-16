@@ -13,9 +13,9 @@ public class DayDto {
     public record Patch(LocalDate date, List<DayAttractionDto> dayAttractions) {
     }
 
-    public record Response(LocalDate date, List<AttractionDto.Response> attractions) {
+    public record Response(Long dayId, LocalDate date, List<AttractionDto.Response> attractions) {
     }
 
-    public record DateResponse(LocalDate date) {
+    public record DateResponse(Long dayId, LocalDate date) {
     }
 }
