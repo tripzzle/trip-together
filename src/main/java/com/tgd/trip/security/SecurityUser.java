@@ -8,7 +8,7 @@ public class SecurityUser extends User {
 
     public SecurityUser(com.tgd.trip.user.domain.User user) {
         super(user.getEmail(), user.getPassword(),
-                AuthorityUtils.createAuthorityList("ROLE_"+user.getRole().name()));
+                AuthorityUtils.createAuthorityList("ROLE_" + user.getRoles().stream().findFirst().get()));
         this.user = user;
     }
 

@@ -1,83 +1,113 @@
 package com.tgd.trip.security;
 
-import com.tgd.trip.jwt.JwtAccessDeniedHandler;
-import com.tgd.trip.jwt.JwtAuthenticationEntryPoint;
-import com.tgd.trip.jwt.JwtAuthenticationFilter;
-import com.tgd.trip.jwt.JwtTokenProvider;
+import com.tgd.trip.jwt.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserService;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
-@RequiredArgsConstructor
-@EnableWebSecurity
+import java.util.Arrays;
+import java.util.List;
+
+
 @Configuration
+@EnableWebSecurity
+@RequiredArgsConstructor
 public class SecurityConfig {
 
     private final OAuth2UserService oAuth2UserService;
 
     private final JwtTokenProvider jwtTokenProvider;
-    //      jwtAtuthenticationEntryPoint는 유효한 자격증명을 제공하지 않고 접근하려할 때 401에러를 리턴하는 클래스이다.
-    private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
-
-    //     jwtAccessDeniedHandler는 필요한 권한이 존재하지 않을 경우 403 forbidden 에러를 리턴하는 클래스이다.
-    private final JwtAccessDeniedHandler jwtAccessDeniedHandler;
-
-
-    // 비밀번호 암호화
-    //JWT를 사용하기 위해서는 기본적으로 password encoder가 필요한데, 여기서는 Bycrypt encoder를 사용했다.
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
-
-    // authenticationManager를 Bean 등록
-    @Bean
-    public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
-        return authenticationConfiguration.getAuthenticationManager();
-    }
+    private final OAuth2LoginSuccessHandler oAuth2LoginSuccessHandler;
+    private final OAuth2LoginFailureHandler oAuth2LoginFailureHandler;
 
     @Bean
-    public WebSecurityCustomizer webSecurityCustomizer() {
-        return (web) -> web.ignoring()//무시한다.
-                .antMatchers("/h2-console/**", "/favicon.ico"// `/h2-console/**` 과 `/favicon.ico` 하위 모든 요청과 파비콘은 인증을 무시한다.
-                        , "/error", "/static/js/**", "/static/css/**", "/static/img/**", "/static/frontend/**");
-
+    public static PasswordEncoder passwordEncoder() {
+        return PasswordEncoderFactories.createDelegatingPasswordEncoder();
     }
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-                .csrf().disable() // CSRF 보안을 사용하지 않습니다.
+                .httpBasic().disable()  // 기본 HTTP 인증 방식을 사용하지 않습니다.
+                .formLogin().disable()  // 폼 기반 로그인을 사용하지 않습니다.
+                .csrf().disable()  // CSRF(Cross-Site Request Forgery) 공격 방지 기능을 사용하지 않습니다.
+//                .apply(new CustomFilterConfigurer())  // 사용자 정의 필터를 적용합니다.
 
-//                .exceptionHandling()
-//                .authenticationEntryPoint(jwtAuthenticationEntryPoint) // JWT 인증 진입 지점 설정
-//                .accessDeniedHandler(jwtAccessDeniedHandler) // JWT 접근 거부 핸들러 설정
+//                .and()
+                .cors().configurationSource(corsConfigurationSource())  // CORS 구성을 위한 설정 소스를 지정합니다.
 
-                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS) // 토큰 기반 인증이므로 세션 사용 안함
+                .and()
+                .headers().frameOptions().disable()  // X-Frame-Options를 비활성화합니다.
+
+                .and()
+                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)  // 세션을 상태 없이 관리합니다.
 
                 .and()
                 .authorizeRequests() // 요청에 대한 사용 권한 체크 시작
-                .antMatchers("/api/user/**").authenticated() // "/api/gest/**"로 시작하는 URL은 인증 없이 접근 허용
-                .anyRequest().permitAll() // 그 외의 모든 요청은 인증이 필요함
+                .antMatchers(HttpMethod.GET,"/api/user/**").authenticated()
+                .anyRequest().permitAll()
+                .and().addFilterBefore(new JwtAuthenticationFilter(jwtTokenProvider), UsernamePasswordAuthenticationFilter.class)
 
-                .and()
-                .addFilterBefore(new JwtAuthenticationFilter(jwtTokenProvider), UsernamePasswordAuthenticationFilter.class); // JwtAuthenticationFilter를 UsernamePasswordAuthenticationFilter 앞에 추가
-        http
-                .oauth2Login() // OAuth2 로그인 설정 시작
-                .userInfoEndpoint()
-                .userService(oAuth2UserService); // OAuth2 사용자 서비스 설정
+                .oauth2Login()
+                .successHandler(oAuth2LoginSuccessHandler)  // OAuth2 로그인 성공 시 처리를 담당하는 핸들러를 지정합니다.
+                .failureHandler(oAuth2LoginFailureHandler)  // OAuth2 로그인 실패 시 처리를 담당하는 핸들러를 지정합니다.
+                .userInfoEndpoint().userService(oAuth2UserService);// OAuth2 로그인 시 사용자 정보를 저장하고 관리하는 서비스를 지정합니다.
 
         return http.build();
     }
+
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        // CORS 구성을 위한 CorsConfigurationSource를 설정합니다.
+
+        CorsConfiguration configuration = new CorsConfiguration();
+        configuration.setAllowedOrigins(List.of("*"));  // 모든 Origin을 허용합니다.
+        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PATCH", "PUT", "DELETE", "HEAD"));  // 허용할 HTTP 메서드를 설정합니다.
+        configuration.setAllowedHeaders(List.of("*"));  // 모든 헤더를 허용합니다.
+        configuration.setExposedHeaders(List.of("*"));  // 노출할 헤더를 설정합니다.
+        configuration.setAllowCredentials(false);  // 인증 정보를 포함하지 않도록 설정합니다.
+
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration);  // 모든 경로에 대해 CORS 구성을 적용합니다.
+
+        return source;
+    }
+
+    //권한 인증 필터
+//    public class CustomFilterConfigurer extends AbstractHttpConfigurer<CustomFilterConfigurer, HttpSecurity> {
+//        // 사용자 정의 필터를 구성하기 위한 클래스입니다.
+//
+//        @Override
+//        public void configure(HttpSecurity httpSecurity) throws Exception {
+//            AuthenticationManager authenticationManager = httpSecurity.getSharedObject(AuthenticationManager.class);
+//
+//            JwtAuthenticationFilter jwtAuthenticationFilter = new JwtAuthenticationFilter(authenticationManager);
+//            jwtAuthenticationFilter.setFilterProcessesUrl("/api/auth/login");  // 로그인 API의 URL을 설정합니다.
+//            jwtAuthenticationFilter.setAuthenticationSuccessHandler(new MemberAuthenticationSuccessHandler(jwtTokenProvider));  // 인증 성공 시 처리를 담당하는 핸들러를 설정합니다.
+//            jwtAuthenticationFilter.setAuthenticationFailureHandler(new MemberAuthenticationFailureHandler());  // 인증 실패 시 처리를 담당하는 핸들러를 설정합니다.
+//
+//            JwtVerificationFilter jwtVerificationFilter = new JwtVerificationFilter(jwtTokenProvider);  // JWT 토큰 검증 필터를 생성합니다.
+//
+//            httpSecurity
+//                    .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)  // JWT 인증 필터를 UsernamePasswordAuthenticationFilter 앞에 추가합니다.
+//                    .addFilterBefore(jwtVerificationFilter, JwtAuthenticationFilter.class)  // JWT 검증 필터를 JwtAuthenticationFilter 앞에 추가합니다.
+//                    .addFilterBefore(new JwtExceptionFilter(), jwtVerificationFilter.getClass())  // JWT 예외 처리 필터를 JwtVerificationFilter 앞에 추가합니다.
+//                    .exceptionHandling()
+//                    .accessDeniedHandler(new JwtAccessDeniedHandler());  // JWT 접근 거부 처리 핸들러를 설정합니다.
+//        }
+//    }
 }
