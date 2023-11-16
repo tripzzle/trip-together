@@ -54,4 +54,18 @@ public class AttractionController {
         attractionService.deleteBookmark(attractionId, userId);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
+
+    @PostMapping(value = "{attraction-id}/like")
+    public ResponseEntity<?> createAttractionLike(@PathVariable("attraction-id") Long attractionId,
+                                                  @RequestParam("userId") Long userId) {
+        attractionService.createLike(attractionId, userId);
+        return ResponseEntity.status(HttpStatus.CREATED).build();
+    }
+
+    @DeleteMapping(value = "{attraction-id}/like")
+    public ResponseEntity<?> deleteAttractionLike(@PathVariable("attraction-id") Long attractionId,
+                                                  @RequestParam("userId") Long userId) {
+        attractionService.deleteLike(attractionId, userId);
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+    }
 }
