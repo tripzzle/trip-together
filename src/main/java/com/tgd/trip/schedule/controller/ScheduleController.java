@@ -88,4 +88,11 @@ public class ScheduleController {
         scheduleService.deleteBookmark(scheduleId, userId);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
+
+    @PostMapping(value = "{schedule-id}/like")
+    public ResponseEntity<?> createScheduleLike(@PathVariable("schedule-id") Long scheduleId,
+                                                @RequestParam("userId") Long userId) {
+        scheduleService.createLike(scheduleId, userId);
+        return ResponseEntity.status(HttpStatus.CREATED).build();
+    }
 }

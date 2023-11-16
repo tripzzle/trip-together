@@ -6,8 +6,7 @@ import com.tgd.trip.global.s3.S3Uploader;
 import com.tgd.trip.photo.domain.Photo;
 import com.tgd.trip.schedule.domain.*;
 import com.tgd.trip.schedule.dto.ScheduleDto;
-import com.tgd.trip.schedule.repository.ScheduleBookmarkRepository;
-import com.tgd.trip.schedule.repository.ScheduleRepository;
+import com.tgd.trip.schedule.repository.*;
 import com.tgd.trip.user.domain.User;
 import com.tgd.trip.user.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -18,6 +17,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.transaction.Transactional;
+import java.time.*;
 import java.util.List;
 
 @Service
@@ -27,6 +27,7 @@ public class ScheduleService {
 
     private final ScheduleRepository scheduleRepository;
     private final ScheduleBookmarkRepository scheduleBookmarkRepository;
+    private final ScheduleLikeRepository scheduleLikeRepository;
     private final DayAttractionService dayAttractionService;
     private final S3Uploader s3Uploader;
     private final UserService userService;
@@ -150,5 +151,26 @@ public class ScheduleService {
         User findUser = userService.getVerifyUser(userId);
         Schedule findSchedule = getSchedule(scheduleId);
         scheduleBookmarkRepository.deleteByUserAndSchedule(findUser, findSchedule);
+    }
+
+    @Transactional
+    public void createLike(Long scheduleId, Long userId) {
+        User findUser = userService.getVerifyUser(userId);
+        Schedule findSchedule = getSchedule(scheduleId);
+
+        // 오늘의 시작 시간과 끝 시간을 구하기
+        LocalDate today = LocalDate.now();
+        LocalDateTime startOfDay = today.atStartOfDay();
+        LocalDateTime endOfDay = today.atTime(LocalTime.MAX);
+
+        // 찾은 범위를 바탕으로 해당 스케줄에 해당 유저가 좋아요를 했는지 검증
+        if (scheduleLikeRepository.existsByCreatedAtBetweenAndUserAndSchedule(startOfDay, endOfDay, findUser, findSchedule)) {
+            throw new CustomException(ErrorCode.TOO_MANY_LIKES);
+        }
+
+        // 좋아요 생성
+        ScheduleLike scheduleLike = new ScheduleLike(findUser);
+        findSchedule.addLike(scheduleLike);
+        scheduleLikeRepository.save(scheduleLike);
     }
 }

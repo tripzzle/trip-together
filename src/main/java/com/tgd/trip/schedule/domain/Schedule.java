@@ -14,17 +14,17 @@ import java.util.*;
 @AllArgsConstructor
 @Builder
 public class Schedule extends BaseEntity {
-
-    @OneToMany(mappedBy = "schedule", cascade = CascadeType.PERSIST, fetch = FetchType.LAZY, orphanRemoval = true)
-    private final List<Day> days = new ArrayList<>();
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long scheduleId;
     private String title;
     private String content;
-    private Long likes;
     private String imgUrl;
     private Boolean viewYn = false;
+    @OneToMany(mappedBy = "schedule", cascade = CascadeType.PERSIST, fetch = FetchType.LAZY, orphanRemoval = true)
+    private List<ScheduleLike> scheduleLikes = new ArrayList<>();
+    @OneToMany(mappedBy = "schedule", cascade = CascadeType.PERSIST, fetch = FetchType.LAZY, orphanRemoval = true)
+    private final List<Day> days = new ArrayList<>();
 
     public Schedule(ScheduleDto.Post post, String imgUrl) {
         Optional.of(post.title())
@@ -53,5 +53,12 @@ public class Schedule extends BaseEntity {
             days.add(day);
         }
         day.setSchedule(this);
+    }
+
+    public void addLike(ScheduleLike scheduleLike){
+        if(!this.scheduleLikes.contains(scheduleLike)){
+            scheduleLikes.add(scheduleLike);
+        }
+        scheduleLike.setSchedule(this);
     }
 }
