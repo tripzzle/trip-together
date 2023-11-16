@@ -34,7 +34,7 @@ public class ScheduleService {
     @Transactional
     public Schedule createSchedule(ScheduleDto.Post post) {
         // 일정 이름, 내용을 가지는 객체 생성
-        Schedule schedule = new Schedule(post.title(), post.content());
+        Schedule schedule = new Schedule(post.title(), post.content(), post.viewYn());
 
         post.days().forEach(dayDtoPost -> {
             // 새로운 일자 객체 생성 및 일정 객체와 연결
@@ -92,7 +92,7 @@ public class ScheduleService {
     }
 
     public List<Schedule> getSchedules(String keyword, String sort, Pageable pageable) {
-        List<Schedule> schedules = scheduleRepository.findAllByTitleContaining(keyword, PageRequest.of(pageable.getPageNumber(), pageable.getPageSize()));
+        List<Schedule> schedules = scheduleRepository.findAllByTitleContainingAndViewYnNot(keyword, true, PageRequest.of(pageable.getPageNumber(), pageable.getPageSize()));
         return schedules;
     }
 
