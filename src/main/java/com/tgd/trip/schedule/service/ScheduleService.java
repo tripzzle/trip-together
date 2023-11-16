@@ -32,9 +32,18 @@ public class ScheduleService {
     private final UserService userService;
 
     @Transactional
-    public Schedule createSchedule(ScheduleDto.Post post) {
+    public Schedule createSchedule(ScheduleDto.Post post, MultipartFile file) {
         // 일정 이름, 내용을 가지는 객체 생성
-        Schedule schedule = new Schedule(post.title(), post.content(), post.viewYn());
+        String imgUrl = "";
+
+        // 일정용 이미지 업로드
+        if (file != null) {
+            imgUrl = s3Uploader.saveUploadFile(file);
+            imgUrl = s3Uploader.getFilePath(imgUrl);
+            log.debug("filePath : " + imgUrl);
+        }
+
+        Schedule schedule = new Schedule(post, imgUrl);
 
         post.days().forEach(dayDtoPost -> {
             // 새로운 일자 객체 생성 및 일정 객체와 연결
@@ -50,9 +59,20 @@ public class ScheduleService {
     }
 
     @Transactional
-    public Schedule updateSchedule(Long scheduleId, ScheduleDto.Patch patch) {
+    public Schedule updateSchedule(Long scheduleId, ScheduleDto.Patch patch, MultipartFile file) {
         // 기존 스케줄 가져오기
         Schedule schedule = getSchedule(scheduleId);
+
+        // 일정용 이미지 업로드
+        String imgUrl = "";
+        if (file != null) {
+            imgUrl = s3Uploader.saveUploadFile(file);
+            imgUrl = s3Uploader.getFilePath(imgUrl);
+            log.debug("filePath : " + imgUrl);
+        }
+
+        // 일정 객체 업데이트
+        schedule.updateSchedule(patch, imgUrl);
 
         // 받아온 day로 새로운 일자 만들기
         patch.days().forEach(dayDtoPatch -> {

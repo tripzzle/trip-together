@@ -26,17 +26,19 @@ public class ScheduleController {
     private final ScheduleMapper scheduleMapper;
 
     @PostMapping
-    public ResponseEntity<?> createSchedule(@RequestBody ScheduleDto.Post post) {
+    public ResponseEntity<?> createSchedule(@RequestPart ScheduleDto.Post post,
+                                            @RequestParam(value = "image", required = false) MultipartFile file) {
         log.info(String.valueOf(post));
-        Schedule schedule = scheduleService.createSchedule(post);
+        Schedule schedule = scheduleService.createSchedule(post, file);
         return ResponseEntity.created(URI.create(String.format("api/schedule/%s", schedule.getScheduleId()))).build();
     }
 
     @PatchMapping("{schedule-id}")
     public ResponseEntity<?> updateSchedule(@PathVariable("schedule-id") Long id,
-                                            @RequestBody ScheduleDto.Patch patch) {
+                                            @RequestPart ScheduleDto.Patch patch,
+                                            @RequestParam(value = "image", required = false) MultipartFile file) {
         log.info(String.valueOf(patch));
-        Schedule schedule = scheduleService.updateSchedule(id, patch);
+        Schedule schedule = scheduleService.updateSchedule(id, patch, file);
         ScheduleDto.Response response = scheduleMapper.entityToResponse(schedule);
         return ResponseEntity.ok(response);
     }

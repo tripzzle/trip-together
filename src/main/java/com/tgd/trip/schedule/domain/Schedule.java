@@ -1,6 +1,7 @@
 package com.tgd.trip.schedule.domain;
 
 import com.tgd.trip.global.BaseEntity;
+import com.tgd.trip.schedule.dto.ScheduleDto;
 import lombok.*;
 
 import javax.persistence.*;
@@ -25,12 +26,25 @@ public class Schedule extends BaseEntity {
     private String imgUrl;
     private Boolean viewYn = false;
 
-    public Schedule(String title, String content, Boolean viewYn) {
-        Optional.of(title)
+    public Schedule(ScheduleDto.Post post, String imgUrl) {
+        Optional.of(post.title())
                 .ifPresent(this::setTitle);
-        Optional.of(content)
+        Optional.of(post.content())
                 .ifPresent(this::setContent);
-        Optional.of(viewYn)
+        Optional.of(imgUrl)
+                .ifPresent(this::setImgUrl);
+        Optional.of(post.viewYn())
+                .ifPresent(this::setViewYn);
+    }
+
+    public void updateSchedule(ScheduleDto.Patch patch, String imgUrl) {
+        Optional.of(patch.title())
+                .ifPresent(this::setTitle);
+        Optional.of(patch.content())
+                .ifPresent(this::setContent);
+        Optional.of(imgUrl)
+                .ifPresent(this::setImgUrl);
+        Optional.of(patch.viewYn())
                 .ifPresent(this::setViewYn);
     }
 
