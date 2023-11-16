@@ -7,17 +7,15 @@ import java.util.Map;
 @Data
 public class KakaoUserInfo implements OAuth2UserInfo {
 
-    private String id;
     private Map<String, Object> kakaoAccount;
 
-    public KakaoUserInfo(Map<String, Object> attributes, String id ) {
+    public KakaoUserInfo(Map<String, Object> attributes ) {
         this.kakaoAccount = attributes;
-        this.id = id;
     }
 
     @Override
     public String getProviderId() {
-        return id;
+        return String.valueOf(kakaoAccount.get("id"));
     }
 
     @Override

@@ -1,14 +1,12 @@
 package com.tgd.trip.user.domain;
 
 import com.tgd.trip.attraction.domain.AttractionBookmark;
-import com.tgd.trip.attraction.repository.AttractionBookmarkRepository;
 import com.tgd.trip.global.BaseEntity;
 import com.tgd.trip.schedule.domain.ScheduleBookmark;
 import lombok.*;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Null;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -29,30 +27,41 @@ public class User extends BaseEntity {
     @Column(unique = true)
     private String email;
     @NotNull
-    private Role role;
+    @ElementCollection(fetch = FetchType.EAGER)
+    private List<String> roles = new ArrayList<>();
     private String provider;
     private String providerId;
-    @Null
-    private String status;
+    private UserStatus status=UserStatus.ACTIVE;
     private LocalDate birth;
     private String nickName;
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<ScheduleBookmark> scheduleBookmarks = new ArrayList<>();
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<AttractionBookmark> attractionBookmarks = new ArrayList<>();
+    private Boolean sex;
 
     @Builder
-    public User(Long userId, String password, String name, String email, Role role, String status, String provider, String providerId, LocalDate birth, String nickName) {
+    public User(Long userId, String password, String name, String email, List<String> roles, String provider, String providerId, LocalDate birth, String nickName,  Boolean sex){
         this.userId = userId;
         this.password = password;
         this.name = name;
         this.email = email;
-        this.role = role;
-        this.status = status;
+        this.roles = roles;
         this.provider = provider;
         this.providerId = providerId;
         this.birth = birth;
         this.nickName = nickName;
+        this.sex = sex;
+    }
+
+    @Builder
+    public User( String password, String name, String email, List<String> roles, String provider, String providerId){
+        this.password = password;
+        this.name = name;
+        this.email = email;
+        this.roles = roles;
+        this.provider = provider;
+        this.providerId = providerId;
     }
 
     public void addScheduleBookmark(ScheduleBookmark scheduleBookmark) {

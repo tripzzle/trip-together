@@ -15,6 +15,7 @@ import org.springframework.stereotype.Component;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.Date;
+import java.util.List;
 
 @RequiredArgsConstructor
 @Component
@@ -23,7 +24,7 @@ public class JwtTokenProvider {
     private String secretKey = "glZuQMjHDtSzqLRadpCkZnmlQBvZEPpIAoLLOchSqPksUXCpYC";
 
     // 토큰 유효시간 30분
-    private long tokenValidTime = 30 * 60 * 1000L;
+    private long tokenValidTime = 60 * 24 * 60 * 1000L;
 
     private final UserDetailsService userDetailsService;
 
@@ -33,7 +34,7 @@ public class JwtTokenProvider {
 //    }
 
     // JWT 토큰 생성
-    public String createToken(String userPK, Role roles) {
+    public String createToken(String userPK, List<String> roles) {
         Claims claims = Jwts.claims().setSubject(userPK); // JWT payload에 저장되는 정보 단위
         claims.put("roles", roles); // 정보 저장 (key-value)
         Date now = new Date();
