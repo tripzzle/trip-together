@@ -6,6 +6,7 @@ import lombok.*;
 import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Getter
 @Setter
@@ -23,7 +24,7 @@ public class Schedule extends BaseEntity {
     private Long likes;
     private String imgUrl;
     private Boolean viewYn = false;
-    @OneToMany(mappedBy = "schedule", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "schedule", cascade = CascadeType.PERSIST, fetch = FetchType.LAZY, orphanRemoval = true)
     private final List<Day> days = new ArrayList<>();
 
     public void addDays(Day day) {
@@ -33,4 +34,10 @@ public class Schedule extends BaseEntity {
         day.setSchedule(this);
     }
 
+    public Schedule(String title, String content) {
+        Optional.of(title)
+                .ifPresent(this::setTitle);
+        Optional.of(content)
+                .ifPresent(this::setContent);
+    }
 }

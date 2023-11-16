@@ -2,15 +2,22 @@ package com.tgd.trip.schedule.dto;
 
 import lombok.Builder;
 
-import java.time.LocalDate;
 import java.util.List;
 
 public class ScheduleDto {
 
-    public record Post(LocalDate startDate, LocalDate endDate, Long userId, Boolean viewYn) {
+    public record Post(String title, String content, Boolean viewYn, String imgUrl, List<DayDto.Post> days) {
+    }
+
+    public record Patch(String title, String content, Boolean viewYn, String imgUrl, List<DayDto.Patch> days) {
     }
 
     @Builder
-    public record Response(String title, String content, List<DayDto.Response> dayResponses, Boolean viewYn) {
+    public record Response(Long scheduleId, String title, String content, List<DayDto.Response> dayResponses,
+                           Boolean viewYn) {
+    }
+
+    public record SimpleResponse(Long scheduleId, String title, String content, String imgUrl,
+                                 List<DayDto.DateResponse> days) {
     }
 }

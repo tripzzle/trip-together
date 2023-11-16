@@ -15,6 +15,10 @@ public class UserService {
         return userRepository.findByEmail(email).orElseThrow();
     }
 
+    public User getVerifyUser(Long id) {
+        return userRepository.findById(id).orElseThrow();
+    }
+
     public void createUser(User user) {
         userRepository.save(user);
     }
