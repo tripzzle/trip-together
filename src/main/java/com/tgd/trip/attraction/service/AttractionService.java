@@ -1,9 +1,7 @@
 package com.tgd.trip.attraction.service;
 
-import com.tgd.trip.attraction.domain.Attraction;
-import com.tgd.trip.attraction.domain.AttractionBookmark;
-import com.tgd.trip.attraction.repository.AttractionBookmarkRepository;
-import com.tgd.trip.attraction.repository.AttractionRepository;
+import com.tgd.trip.attraction.domain.*;
+import com.tgd.trip.attraction.repository.*;
 import com.tgd.trip.global.exception.CustomException;
 import com.tgd.trip.global.exception.ErrorCode;
 import com.tgd.trip.global.util.Coordinate;
@@ -25,6 +23,7 @@ public class AttractionService {
 
     private final AttractionRepository attractionRepository;
     private final AttractionBookmarkRepository attractionBookmarkRepository;
+    private final AttractionLikeRepository attractionLikeRepository;
     private final UserService userService;
 
     public List<Attraction> getAttractionsFromCenter(Coordinate center, Double height, Double width) {
@@ -60,5 +59,27 @@ public class AttractionService {
         User findUser = userService.getVerifyUser(userId);
         Attraction findAttraction = getAttraction(attractionId);
         attractionBookmarkRepository.deleteByUserAndAttraction(findUser, findAttraction);
+    }
+
+    @Transactional
+    public void createLike(Long attractionId, Long userId) {
+        User findUser = userService.getVerifyUser(userId);
+        Attraction findAttraction = getAttraction(attractionId);
+
+        // 유저가 해당 관광지를 좋아요 했다면 더 이상 좋아요 불가능
+        if (attractionLikeRepository.existsByUserAndAttraction(findUser, findAttraction)) {
+            throw new CustomException(ErrorCode.TOO_MANY_LIKES);
+        }
+
+        AttractionLike attractionLike = new AttractionLike(findUser);
+        findAttraction.addLike(attractionLike);
+        attractionLikeRepository.save(attractionLike);
+    }
+
+    @Transactional
+    public void deleteLike(Long attractionId, Long userId) {
+        User findUser = userService.getVerifyUser(userId);
+        Attraction findAttraction = getAttraction(attractionId);
+        attractionLikeRepository.deleteByUserAndAttraction(findUser, findAttraction);
     }
 }
