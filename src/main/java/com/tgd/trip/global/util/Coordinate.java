@@ -33,10 +33,7 @@ public record Coordinate(double latitude, double longitude) {
         double maxLongitude = Math.max(lng1, lng2);
         double minLongitude = Math.min(lng1, lng2);
 
-        return new Pair<>(
-                new Coordinate(minLatitude, minLongitude),
-                new Coordinate(maxLatitude, maxLongitude)
-        );
+        return new Pair<>(new Coordinate(minLatitude, minLongitude), new Coordinate(maxLatitude, maxLongitude));
     }
 
     private record Delta(double longitudeDelta, double latitudeDelta) {
