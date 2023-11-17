@@ -14,7 +14,8 @@ public class UserService {
     private final UserRepository userRepository;
 
     public User getVerifyUser(String email) {
-        return userRepository.findByEmail(email).orElseThrow();
+        return userRepository.findByEmail(email)
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
     }
 
     public User getVerifyUser(Long id) {
