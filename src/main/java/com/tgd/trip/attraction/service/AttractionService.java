@@ -10,11 +10,10 @@ import com.tgd.trip.user.domain.User;
 import com.tgd.trip.user.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -26,18 +25,20 @@ public class AttractionService {
     private final AttractionLikeRepository attractionLikeRepository;
     private final UserService userService;
 
-    public List<Attraction> getAttractionsFromCenter(Coordinate center, Double height, Double width) {
+    public Page<Attraction> getAttractionsFromCenter(Coordinate center, Double height, Double width, Pageable pageable) {
         Pair<Coordinate> squareCoordinate = center.getSquareCoordinate(height, width);
         Coordinate topLeft = squareCoordinate.first();
         Coordinate bottomRight = squareCoordinate.second();
         log.debug("찾고자 하는 상단 좌표 : " + topLeft + ", 하단 좌표" + bottomRight);
-        List<Attraction> attractions = attractionRepository.findAllByLatitudeBetweenAndLongitudeBetween(topLeft.latitude(), bottomRight.latitude(), topLeft.longitude(), bottomRight.longitude());
+        Page<Attraction> attractions = attractionRepository.findAllByLatitudeBetweenAndLongitudeBetween(topLeft.latitude(), bottomRight.latitude(), topLeft.longitude(), bottomRight.longitude(), pageable);
         return attractions;
     }
 
-    public List<Attraction> getAttractions(Long gugunCode, Long sidoCode, Pageable pageable) {
-        log.debug("구군 코드 : " + gugunCode + ", 시도 코드 :" + sidoCode);
-        return attractionRepository.findAllByGugun_IdGugunCodeAndGugun_IdSidoCode(gugunCode, sidoCode, pageable.previousOrFirst());
+    public Page<Attraction> getAttractions(String keywowrd, Long sidoCode, Pageable pageable) {
+        if (sidoCode == null) {
+            return attractionRepository.findAllByTitleContaining(keywowrd, pageable);
+        }
+        return attractionRepository.findAllByTitleContainingAndSido_SidoCode(keywowrd, sidoCode, PageRequest.of(pageable.getPageNumber() - 1, pageable.getPageSize()));
     }
 
     public Attraction getAttraction(Long attractionId) {
