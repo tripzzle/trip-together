@@ -25,6 +25,8 @@ public class Schedule extends BaseEntity {
     private List<ScheduleLike> scheduleLikes = new ArrayList<>();
     @OneToMany(mappedBy = "schedule", cascade = CascadeType.PERSIST, fetch = FetchType.LAZY, orphanRemoval = true)
     private final List<Day> days = new ArrayList<>();
+    @OneToMany(mappedBy = "schedule", cascade = CascadeType.PERSIST, fetch = FetchType.LAZY, orphanRemoval = true)
+    private final List<Comment> comments = new ArrayList<>();
 
     public Schedule(ScheduleDto.Post post, String imgUrl) {
         Optional.of(post.title())
@@ -60,5 +62,12 @@ public class Schedule extends BaseEntity {
             scheduleLikes.add(scheduleLike);
         }
         scheduleLike.setSchedule(this);
+    }
+
+    public void addComments(Comment comment){
+        if(!this.comments.contains(comment)){
+            comments.add(comment);
+        }
+        comment.setSchedule(this);
     }
 }

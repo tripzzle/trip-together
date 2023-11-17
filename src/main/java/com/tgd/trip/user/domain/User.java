@@ -31,9 +31,10 @@ public class User extends BaseEntity {
     private List<String> roles = new ArrayList<>();
     private String provider;
     private String providerId;
-    private UserStatus status=UserStatus.ACTIVE;
+    private UserStatus status = UserStatus.ACTIVE;
     private LocalDate birth;
     private String nickName;
+    private String imgUrl;
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<ScheduleBookmark> scheduleBookmarks = new ArrayList<>();
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
@@ -41,7 +42,7 @@ public class User extends BaseEntity {
     private Boolean sex;
 
     @Builder
-    public User(Long userId, String password, String name, String email, List<String> roles, String provider, String providerId, LocalDate birth, String nickName,  Boolean sex){
+    public User(Long userId, String password, String name, String email, List<String> roles, String provider, String providerId, LocalDate birth, String nickName, Boolean sex) {
         this.userId = userId;
         this.password = password;
         this.name = name;
@@ -55,7 +56,7 @@ public class User extends BaseEntity {
     }
 
     @Builder
-    public User( String password, String name, String email, List<String> roles, String provider, String providerId){
+    public User(String password, String name, String email, List<String> roles, String provider, String providerId) {
         this.password = password;
         this.name = name;
         this.email = email;

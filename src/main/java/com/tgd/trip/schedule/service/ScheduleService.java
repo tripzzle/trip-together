@@ -5,6 +5,7 @@ import com.tgd.trip.global.exception.ErrorCode;
 import com.tgd.trip.global.s3.S3Uploader;
 import com.tgd.trip.photo.domain.Photo;
 import com.tgd.trip.schedule.domain.*;
+import com.tgd.trip.schedule.dto.CommentDto;
 import com.tgd.trip.schedule.dto.ScheduleDto;
 import com.tgd.trip.schedule.repository.*;
 import com.tgd.trip.user.domain.User;
@@ -28,6 +29,7 @@ public class ScheduleService {
     private final ScheduleRepository scheduleRepository;
     private final ScheduleBookmarkRepository scheduleBookmarkRepository;
     private final ScheduleLikeRepository scheduleLikeRepository;
+    private final CommentRepository commentRepository;
     private final DayAttractionService dayAttractionService;
     private final S3Uploader s3Uploader;
     private final UserService userService;
@@ -100,7 +102,6 @@ public class ScheduleService {
         return schedule;
     }
 
-
     public Schedule getSchedule(Long id) {
         return scheduleRepository.findById(id)
                 .orElseThrow(() -> new CustomException(ErrorCode.SCHEDULE_NOT_FOUND));
@@ -172,5 +173,53 @@ public class ScheduleService {
         ScheduleLike scheduleLike = new ScheduleLike(findUser);
         findSchedule.addLike(scheduleLike);
         scheduleLikeRepository.save(scheduleLike);
+    }
+
+    @Transactional
+    public void createComment(Long scheduleId, CommentDto.Post post) {
+        // 스케줄 예외 처리
+        Schedule findSchedule = getSchedule(scheduleId);
+
+        // 유저 예외 처리
+        User findUser = userService.getVerifyUser(post.userId());
+
+        // 댓글 생성
+        Comment comment = new Comment(findUser, post.content());
+        findSchedule.addComments(comment);
+        commentRepository.save(comment);
+    }
+
+    @Transactional
+    public void updateComment(Long scheduleId, Long commentId, CommentDto.Patch patch) {
+        // 스케줄 예외 처리
+        getSchedule(scheduleId);
+
+        // 유저 예외 처리
+        User findUser = userService.getVerifyUser(patch.userId());
+
+        // 댓글 가져오기
+        Comment findComment = commentRepository.findById(commentId)
+                .orElseThrow(() -> new CustomException(ErrorCode.COMMENT_NOT_FOUND));
+
+        // 유저 검증
+        if (!findUser.getEmail().equals(findComment.getUser().getEmail())) {
+            throw new CustomException(ErrorCode.DIFFERENT_USER);
+        }
+
+        // 댓글 수정
+        findComment.update(patch);
+        commentRepository.save(findComment);
+    }
+
+    @Transactional
+    public void deleteComment(Long scheduleId, Long commentId) {
+        // 스케줄 예외 처리
+        getSchedule(scheduleId);
+
+        // 댓글 가져오기
+        Comment findComment = commentRepository.findById(commentId)
+                .orElseThrow(() -> new CustomException(ErrorCode.COMMENT_NOT_FOUND));
+
+        commentRepository.delete(findComment);
     }
 }
