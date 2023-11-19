@@ -3,17 +3,17 @@ package com.tgd.trip.attraction.service;
 import com.tgd.trip.attraction.domain.Attraction;
 import com.tgd.trip.attraction.repository.AttractionRepository;
 import com.tgd.trip.global.util.Coordinate;
-import com.tgd.trip.global.util.Pair;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 
 import java.util.Arrays;
 import java.util.List;
 
-import static org.assertj.core.api.BDDAssumptions.given;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.anyDouble;
 import static org.mockito.Mockito.*;
@@ -37,15 +37,16 @@ class AttractionServiceTest {
         Attraction attraction1 = new Attraction();
         Attraction attraction2 = new Attraction();
         List<Attraction> expectedAttractions = Arrays.asList(attraction1, attraction2);
+        PageRequest of = PageRequest.of(1, 10);
 
         // when
-        when(attractionRepository.findAllByLatitudeBetweenAndLongitudeBetween(anyDouble(), anyDouble(), anyDouble(), anyDouble()))
+        when(attractionRepository.findAllByLatitudeBetweenAndLongitudeBetween(anyDouble(), anyDouble(), anyDouble(), anyDouble(), any()).getContent())
                 .thenReturn(expectedAttractions);
-        List<Attraction> attractions = attractionService.getAttractionsFromCenter(center, height, width);
+        Page<Attraction> attractions = attractionService.getAttractionsFromCenter(center, height, width, of);
 
         // then
         assertEquals(expectedAttractions, attractions);
         verify(attractionRepository, times(1))
-                .findAllByLatitudeBetweenAndLongitudeBetween(anyDouble(), anyDouble(), anyDouble(), anyDouble());
+                .findAllByLatitudeBetweenAndLongitudeBetween(anyDouble(), anyDouble(), anyDouble(), anyDouble(), any());
     }
 }
