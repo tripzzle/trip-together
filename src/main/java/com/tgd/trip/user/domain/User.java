@@ -1,12 +1,15 @@
 package com.tgd.trip.user.domain;
 
+import com.tgd.trip.attraction.domain.AttractionBookmark;
 import com.tgd.trip.global.BaseEntity;
+import com.tgd.trip.schedule.domain.ScheduleBookmark;
 import lombok.*;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Null;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Getter
@@ -24,8 +27,8 @@ public class User extends BaseEntity {
     @Column(unique = true)
     private String email;
     @NotNull
-    @ElementCollection
-    private List<String> roles = new ArrayList<String>();
+    @ElementCollection(fetch = FetchType.EAGER)
+    private List<String> roles = new ArrayList<>();
     private String provider;
     private String providerId;
     private UserStatus status=UserStatus.ACTIVE;
