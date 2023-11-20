@@ -28,6 +28,7 @@ public class User extends BaseEntity {
     private String email;
     @NotNull
     @ElementCollection(fetch = FetchType.EAGER)
+    @CollectionTable(name = "USER_ROLES",    joinColumns = @JoinColumn(name = "USER_ID"))
     private List<String> roles = new ArrayList<>();
     private String provider;
     private String providerId;

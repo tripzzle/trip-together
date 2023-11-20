@@ -8,6 +8,7 @@ import com.tgd.trip.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -46,7 +47,8 @@ public class UserService {
             oldUser.setNickName(user.getNickName());
             oldUser.setBirth(user.getBirth());
             oldUser.setSex(user.getSex());
-            oldUser.setRoles(List.of(Role.USER.name()));
+
+            oldUser.getRoles().add(Role.USER.name());
             System.out.println(oldUser);
 
             userRepository.save(oldUser);
