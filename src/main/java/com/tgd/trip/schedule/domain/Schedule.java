@@ -2,6 +2,7 @@ package com.tgd.trip.schedule.domain;
 
 import com.tgd.trip.global.BaseEntity;
 import com.tgd.trip.schedule.dto.ScheduleDto;
+import com.tgd.trip.user.domain.User;
 import lombok.*;
 
 import javax.persistence.*;
@@ -27,6 +28,9 @@ public class Schedule extends BaseEntity {
     private final List<Day> days = new ArrayList<>();
     @OneToMany(mappedBy = "schedule", cascade = CascadeType.PERSIST, fetch = FetchType.LAZY, orphanRemoval = true)
     private final List<Comment> comments = new ArrayList<>();
+    @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
+    private User user;
 
     public Schedule(ScheduleDto.Post post, String imgUrl) {
         Optional.of(post.title())
