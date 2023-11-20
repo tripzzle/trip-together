@@ -38,6 +38,15 @@ public class UserService {
         return tempuser;
     }
 
+    public User getUserInfo(Long userId) {
+        User user = null;
+        Optional<User> optionalUser = userRepository.findById(userId);
+        if (optionalUser.isPresent()) {
+            user = optionalUser.get();
+        }
+        return user;
+    }
+
     public String postSignup(SignupDto user) {
         String newToken = null;
         //signupDto로 추가정보 안한 유저 정보 가져옴

@@ -2,6 +2,7 @@ package com.tgd.trip.user.controller;
 
 import com.tgd.trip.jwt.JwtTokenProvider;
 import com.tgd.trip.security.SecurityUser;
+import com.tgd.trip.user.domain.User;
 import com.tgd.trip.user.dto.SignupDto;
 import com.tgd.trip.user.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -30,6 +31,16 @@ public class UserController {
         }
 
         return ResponseEntity.ok(tempuser);
+    }
+
+    @GetMapping("/mypage")
+    public ResponseEntity<User> getUserInfo(@AuthenticationPrincipal SecurityUser securityUser, @RequestParam Long userId) {
+        User user = null;
+        if (securityUser.getAuthorities().stream().anyMatch(auth -> auth.getAuthority().equals("ROLE_GEST"))) {            // 요청한 유저가 게스트 라면
+            user = userService.getUserInfo(userId);
+        }
+
+        return ResponseEntity.ok(user);
     }
 
     @PostMapping("/signup")
