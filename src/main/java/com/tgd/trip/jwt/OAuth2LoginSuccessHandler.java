@@ -1,24 +1,21 @@
 package com.tgd.trip.jwt;
 
-import com.tgd.trip.security.LoginResponse;
+
 import com.tgd.trip.user.service.CustomOAuth2User;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.util.UriComponentsBuilder;
+import org.springframework.ui.Model;
 
 import javax.servlet.ServletException;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
+import java.net.URLEncoder;
 
 @Component
 @RequiredArgsConstructor
@@ -32,22 +29,30 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
                                         HttpServletResponse response,
                                         Authentication authentication) throws IOException, ServletException {
         log.info("OAuth login 성공");
-        log.info("뭔가뭔가날라옴 : {}", authentication);
         CustomOAuth2User oAuth2User = (CustomOAuth2User) authentication.getPrincipal();
-        loginSuccess(response, oAuth2User);
+        loginSuccess(request, response, oAuth2User);
     }
 
-    private void loginSuccess(HttpServletResponse response, CustomOAuth2User oAuth2User) throws IOException {
-        String accessToken = jwtTokenProvider.createToken(oAuth2User.getEmail(), oAuth2User.getRoles());
-        response.setHeader("Authorization", "Bearer " + accessToken);
-        log.info("oauth email : {} login success", oAuth2User.getEmail());
-        log.info("accessToken : {}", accessToken);
-        response.getWriter().println(accessToken);
-        login(accessToken);
-    }
+    private void loginSuccess(HttpServletRequest request, HttpServletResponse response, CustomOAuth2User oAuth2User) throws IOException {
+        String accessToken = jwtTokenProvider.createToken(oAuth2User.getUserId(), oAuth2User.getRoles());
 
-    public ResponseEntity<?> login(String accessToken) {
-        String jwt = accessToken;
-        return ResponseEntity.ok(jwt);
+        Cookie cookie = new Cookie("Authorization", accessToken);
+
+        // 쿠키 설정
+        cookie.setPath("/");
+        cookie.setHttpOnly(false);
+        cookie.setSecure(true); // HTTPS를 사용할 때만 쿠키가 전송되도록 설정
+        response.addCookie(cookie); // 쿠키를 응답에 추가
+
+        log.info("cookie : {}", cookie);
+        log.info("oauth email : {} login success", oAuth2User.getUserId());
+        log.info("oauth role : {}", oAuth2User.getRoles());
+        log.info("accessToken 여기까진 온다 : {}", accessToken);
+
+        String  redirectUrl = "http://localhost:5173/login";
+
+        log.info("Url : {}", redirectUrl);
+
+        response.sendRedirect(redirectUrl);
     }
 }

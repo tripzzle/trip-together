@@ -2,22 +2,14 @@ package com.tgd.trip.user.controller;
 
 import com.tgd.trip.jwt.JwtTokenProvider;
 import com.tgd.trip.security.SecurityUser;
-import com.tgd.trip.user.domain.User;
-import com.tgd.trip.user.domain.UserPrincipal;
-import com.tgd.trip.user.repository.UserRepository;
-import com.tgd.trip.user.service.OAuth2UserService;
+import com.tgd.trip.user.dto.SignupDto;
+import com.tgd.trip.user.service.UserService;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.log4j.Log4j;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
-import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.Map;
-import java.util.Optional;
 
 @RequiredArgsConstructor
 @RestController
@@ -26,16 +18,30 @@ import java.util.Optional;
 public class UserController {
     private final PasswordEncoder passwordEncoder;
     private final JwtTokenProvider jwtTokenProvider;
-    private final UserRepository reop;
+    private final UserService userService;
 
-    @GetMapping("/login/test")
-    public ResponseEntity<String> test(@AuthenticationPrincipal SecurityUser securityUser){
-        log.info("테스트 요청 토큰 : {}", securityUser);
-        log.info(securityUser.getAuthorities().stream().toList().toString());
-        if (securityUser.getAuthorities().stream().anyMatch(auth -> auth.getAuthority().equals("ROLE_USER")))
-            return ResponseEntity.ok("OK");
-        else
-            return ResponseEntity.ok("fail");
+    @GetMapping("/signup")
+    public ResponseEntity<SignupDto> signup(@AuthenticationPrincipal SecurityUser securityUser, @RequestParam Long userId) {
+
+        SignupDto tempuser = null;
+        System.out.println(userId);
+        if (securityUser.getAuthorities().stream().anyMatch(auth -> auth.getAuthority().equals("ROLE_GEST"))) {            // 요청한 유저가 게스트 라면
+            tempuser = userService.getSignup(userId);
+        }
+
+        return ResponseEntity.ok(tempuser);
+    }
+
+    @PostMapping("/signup")
+    public ResponseEntity<String> signup(@AuthenticationPrincipal SecurityUser securityUser,
+                                         @RequestBody SignupDto userInfo) {
+        System.out.println("회원가입 추가정보 받음!!!" + userInfo);
+        String newToken = null;
+        if (securityUser.getAuthorities().stream().anyMatch(auth -> auth.getAuthority().equals("ROLE_GEST"))) {            // 요청한 유저가 게스트 라면
+            newToken = userService.postSignup(userInfo);
+        }
+
+        return ResponseEntity.ok(newToken);
     }
 
     @GetMapping("/test")
