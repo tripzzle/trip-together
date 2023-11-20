@@ -20,7 +20,7 @@ jobs:
   build:
 
     runs-on: ubuntu-latest
-
+    
     steps:
     - uses: actions/checkout@v3
     - name: Set up JDK 17
@@ -28,6 +28,12 @@ jobs:
       with:
         java-version: '17'
         distribution: 'temurin'
+        
+    - name: get Submodule 
+      uses: actions/checkout@v1
+      with:
+        token: ${{ secrets.SUBMODULE_TOKEN }}
+        submodules: true
         
     # gradle caching
     - name: Gradle Caching
