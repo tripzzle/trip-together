@@ -7,7 +7,10 @@ import com.tgd.trip.photo.domain.Photo;
 import com.tgd.trip.schedule.domain.*;
 import com.tgd.trip.schedule.dto.CommentDto;
 import com.tgd.trip.schedule.dto.ScheduleDto;
-import com.tgd.trip.schedule.repository.*;
+import com.tgd.trip.schedule.repository.CommentRepository;
+import com.tgd.trip.schedule.repository.ScheduleBookmarkRepository;
+import com.tgd.trip.schedule.repository.ScheduleLikeRepository;
+import com.tgd.trip.schedule.repository.ScheduleRepository;
 import com.tgd.trip.user.domain.User;
 import com.tgd.trip.user.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -18,7 +21,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.transaction.Transactional;
-import java.time.*;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.List;
 
 @Service
@@ -36,6 +41,9 @@ public class ScheduleService {
 
     @Transactional
     public Schedule createSchedule(ScheduleDto.Post post, MultipartFile file) {
+        // 유저 존재하는지 판별
+        User verifyUser = userService.getVerifyUser(post.userId());
+
         // 일정 이름, 내용을 가지는 객체 생성
         String imgUrl = "";
 
@@ -56,6 +64,8 @@ public class ScheduleService {
             dayDtoPost.dayAttractions()
                     .forEach(dayAttractionDto -> dayAttractionService.update(dayAttractionDto, day));
         });
+        // 유저와 연결
+        verifyUser.addSchedule(schedule);
         scheduleRepository.save(schedule);
 
         return schedule;
