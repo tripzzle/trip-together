@@ -34,11 +34,11 @@ public class AttractionService {
         return attractions;
     }
 
-    public Page<Attraction> getAttractions(String keywowrd, Long sidoCode, Pageable pageable) {
+    public Page<Attraction> getAttractions(String keyword, Long sidoCode, Pageable pageable) {
         if (sidoCode == null) {
-            return attractionRepository.findAllByTitleContaining(keywowrd, pageable);
+            return attractionRepository.findAllByTitleContaining(keyword, pageable);
         }
-        return attractionRepository.findAllByTitleContainingAndSido_SidoCode(keywowrd, sidoCode, PageRequest.of(pageable.getPageNumber() - 1, pageable.getPageSize()));
+        return attractionRepository.findAllByTitleContainingAndSido_SidoCode(keyword, sidoCode, PageRequest.of(pageable.getPageNumber() - 1, pageable.getPageSize()));
     }
 
     public Attraction getAttraction(Long attractionId) {
