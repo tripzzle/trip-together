@@ -19,6 +19,7 @@ public class ScheduleMapper {
                 .title(schedule.getTitle())
                 .content(schedule.getContent())
                 .viewYn(schedule.getViewYn())
+                .imgUrl(schedule.getImgUrl())
                 .dayResponses(schedule.getDays().stream()
                         .map(day -> new DayDto.Response(
                                 day.getDayId(),
