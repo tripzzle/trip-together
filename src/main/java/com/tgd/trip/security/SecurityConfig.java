@@ -58,7 +58,9 @@ public class SecurityConfig {
 
                 .and()
                 .authorizeRequests() // 요청에 대한 사용 권한 체크 시작
-                .antMatchers("/api/user/**").authenticated()
+                .antMatchers("/api/user/signup").hasRole("GEST")
+                .antMatchers("/api/user/**").hasRole("USER")
+
                 .anyRequest().permitAll()
                 .and().addFilterBefore(new JwtAuthenticationFilter(jwtTokenProvider), UsernamePasswordAuthenticationFilter.class)
 

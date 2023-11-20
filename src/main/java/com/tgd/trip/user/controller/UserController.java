@@ -11,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 @RequiredArgsConstructor
 @RestController
@@ -23,7 +24,7 @@ public class UserController {
 
     @GetMapping("/signup")
     public ResponseEntity<SignupDto> signup(@AuthenticationPrincipal SecurityUser securityUser, @RequestParam Long userId) {
-
+        System.out.println("회원가입 요청옴");
         SignupDto tempuser = null;
         System.out.println(userId);
         if (securityUser.getAuthorities().stream().anyMatch(auth -> auth.getAuthority().equals("ROLE_GEST"))) {            // 요청한 유저가 게스트 라면
@@ -45,11 +46,13 @@ public class UserController {
 
     @PostMapping("/signup")
     public ResponseEntity<String> signup(@AuthenticationPrincipal SecurityUser securityUser,
-                                         @RequestBody SignupDto userInfo) {
+                                         @RequestPart SignupDto userInfo,
+                                         @RequestPart(value = "file", required = false) MultipartFile file) {
         System.out.println("회원가입 추가정보 받음!!!" + userInfo);
+        System.out.println("사진 왔어용" + file);
         String newToken = null;
         if (securityUser.getAuthorities().stream().anyMatch(auth -> auth.getAuthority().equals("ROLE_GEST"))) {            // 요청한 유저가 게스트 라면
-            newToken = userService.postSignup(userInfo);
+            newToken = userService.postSignup(userInfo, file);
         }
 
         return ResponseEntity.ok(newToken);
