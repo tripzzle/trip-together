@@ -12,6 +12,7 @@ import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.CrossOrigin;
 
 import java.util.*;
 
@@ -20,11 +21,11 @@ import java.util.*;
 @RequiredArgsConstructor
 public class OAuth2UserService extends DefaultOAuth2UserService {
     private final UserRepository userRepository;
-    private final JwtTokenProvider jwtTokenProvider;
 
     //로그인 필요한 url 요청시 여기로 넘어옴
     @Override
     @Transactional
+    @CrossOrigin(origins = "http://localhost:5173")
     public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
         log.info("userRequest: {}", userRequest);
 
@@ -55,7 +56,7 @@ public class OAuth2UserService extends DefaultOAuth2UserService {
 
         String provider = oAuth2UserInfo.getProvider(); //google , naver, facebook etc
         String providerId = clientRegistration.getProviderDetails().getUserInfoEndpoint().getUserNameAttributeName();
-        String name = provider + "_" + oAuth2UserInfo.getName() + "_" + providerId;
+        String name = oAuth2UserInfo.getName();
         String email = oAuth2UserInfo.getEmail();
 
         log.info("email: {}", email);
@@ -63,7 +64,6 @@ public class OAuth2UserService extends DefaultOAuth2UserService {
         Optional<User> optionalUser = userRepository.findByEmail(email);
 
         User user = null;
-        System.out.println(user);
         if (optionalUser.isPresent()) {
             log.info("로그인을 이미 했음, 자동회원가입이 되어있다.");
             user = optionalUser.get();
@@ -72,7 +72,7 @@ public class OAuth2UserService extends DefaultOAuth2UserService {
                     .password("githere")
                     .name(name)
                     .email(email)
-                    .roles(List.of(Role.USER.name()))
+                    .roles(List.of(Role.GEST.name()))
                     .providerId(providerId)
                     .provider(provider)
                     .build();
