@@ -1,7 +1,6 @@
 package com.tgd.trip.schedule.controller;
 
 import com.tgd.trip.schedule.domain.Schedule;
-import com.tgd.trip.schedule.dto.CommentDto;
 import com.tgd.trip.schedule.dto.ScheduleDto;
 import com.tgd.trip.schedule.mapper.ScheduleMapper;
 import com.tgd.trip.schedule.service.ScheduleService;
@@ -27,19 +26,17 @@ public class ScheduleController {
     private final ScheduleMapper scheduleMapper;
 
     @PostMapping
-    public ResponseEntity<?> createSchedule(@RequestPart ScheduleDto.Post post,
-                                            @RequestParam(value = "image", required = false) MultipartFile file) {
+    public ResponseEntity<?> createSchedule(@RequestBody ScheduleDto.Post post) {
         log.info(String.valueOf(post));
-        Schedule schedule = scheduleService.createSchedule(post, file);
+        Schedule schedule = scheduleService.createSchedule(post);
         return ResponseEntity.created(URI.create(String.format("api/schedule/%s", schedule.getScheduleId()))).build();
     }
 
     @PatchMapping("{schedule-id}")
     public ResponseEntity<?> updateSchedule(@PathVariable("schedule-id") Long id,
-                                            @RequestPart ScheduleDto.Patch patch,
-                                            @RequestParam(value = "image", required = false) MultipartFile file) {
+                                            @RequestBody ScheduleDto.Patch patch) {
         log.info(String.valueOf(patch));
-        Schedule schedule = scheduleService.updateSchedule(id, patch, file);
+        Schedule schedule = scheduleService.updateSchedule(id, patch);
         ScheduleDto.Response response = scheduleMapper.entityToResponse(schedule);
         return ResponseEntity.ok(response);
     }
@@ -87,42 +84,6 @@ public class ScheduleController {
     public ResponseEntity<?> deleteScheduleBookmark(@PathVariable("schedule-id") Long scheduleId,
                                                     @RequestParam("userId") Long userId) {
         scheduleService.deleteBookmark(scheduleId, userId);
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
-    }
-
-    @PostMapping(value = "{schedule-id}/like")
-    public ResponseEntity<?> createScheduleLike(@PathVariable("schedule-id") Long scheduleId,
-                                                @RequestParam("userId") Long userId) {
-        scheduleService.createLike(scheduleId, userId);
-        return ResponseEntity.status(HttpStatus.CREATED).build();
-    }
-
-    @PostMapping(value = "{schedule-id}/comment")
-    public ResponseEntity<?> createComment(@PathVariable("schedule-id") Long scheduleId,
-                                           @RequestBody CommentDto.Post post) {
-        scheduleService.createComment(scheduleId, post);
-        return ResponseEntity.status(HttpStatus.CREATED).build();
-    }
-
-    @PatchMapping(value = "{schedule-id}/comment/{comment-id}")
-    public ResponseEntity<?> updateComment(@PathVariable("schedule-id") Long scheduleId,
-                                           @PathVariable("comment-id") Long commentId,
-                                           @RequestBody CommentDto.Patch patch) {
-        scheduleService.updateComment(scheduleId, commentId, patch);
-        return ResponseEntity.status(HttpStatus.CREATED).build();
-    }
-
-    @GetMapping(value = "{schedule-id}/comment")
-    public ResponseEntity<?> getComments(@PathVariable("schedule-id") Long scheduleId) {
-        Schedule schedule = scheduleService.getSchedule(scheduleId);
-        List<CommentDto.Response> responses = scheduleMapper.entityToCommentResponse(schedule);
-        return ResponseEntity.ok(responses);
-    }
-
-    @DeleteMapping(value = "{schedule-id}/comment/{comment-id}")
-    public ResponseEntity<?> deleteComment(@PathVariable("schedule-id") Long scheduleId,
-                                           @PathVariable("comment-id") Long commentId) {
-        scheduleService.deleteComment(scheduleId, commentId);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 }

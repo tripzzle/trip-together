@@ -5,9 +5,9 @@ import com.tgd.trip.global.exception.ErrorCode;
 import com.tgd.trip.global.s3.S3Uploader;
 import com.tgd.trip.photo.domain.Photo;
 import com.tgd.trip.schedule.domain.*;
-import com.tgd.trip.schedule.dto.CommentDto;
 import com.tgd.trip.schedule.dto.ScheduleDto;
-import com.tgd.trip.schedule.repository.*;
+import com.tgd.trip.schedule.repository.ScheduleBookmarkRepository;
+import com.tgd.trip.schedule.repository.ScheduleRepository;
 import com.tgd.trip.user.domain.User;
 import com.tgd.trip.user.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -18,7 +18,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.transaction.Transactional;
-import java.time.*;
 import java.util.List;
 
 @Service
@@ -28,25 +27,14 @@ public class ScheduleService {
 
     private final ScheduleRepository scheduleRepository;
     private final ScheduleBookmarkRepository scheduleBookmarkRepository;
-    private final ScheduleLikeRepository scheduleLikeRepository;
-    private final CommentRepository commentRepository;
     private final DayAttractionService dayAttractionService;
     private final S3Uploader s3Uploader;
     private final UserService userService;
 
     @Transactional
-    public Schedule createSchedule(ScheduleDto.Post post, MultipartFile file) {
+    public Schedule createSchedule(ScheduleDto.Post post) {
         // 일정 이름, 내용을 가지는 객체 생성
-        String imgUrl = "";
-
-        // 일정용 이미지 업로드
-        if (file != null) {
-            imgUrl = s3Uploader.saveUploadFile(file);
-            imgUrl = s3Uploader.getFilePath(imgUrl);
-            log.debug("filePath : " + imgUrl);
-        }
-
-        Schedule schedule = new Schedule(post, imgUrl);
+        Schedule schedule = new Schedule(post.title(), post.content());
 
         post.days().forEach(dayDtoPost -> {
             // 새로운 일자 객체 생성 및 일정 객체와 연결
@@ -62,20 +50,9 @@ public class ScheduleService {
     }
 
     @Transactional
-    public Schedule updateSchedule(Long scheduleId, ScheduleDto.Patch patch, MultipartFile file) {
+    public Schedule updateSchedule(Long scheduleId, ScheduleDto.Patch patch) {
         // 기존 스케줄 가져오기
         Schedule schedule = getSchedule(scheduleId);
-
-        // 일정용 이미지 업로드
-        String imgUrl = "";
-        if (file != null) {
-            imgUrl = s3Uploader.saveUploadFile(file);
-            imgUrl = s3Uploader.getFilePath(imgUrl);
-            log.debug("filePath : " + imgUrl);
-        }
-
-        // 일정 객체 업데이트
-        schedule.updateSchedule(patch, imgUrl);
 
         // 받아온 day로 새로운 일자 만들기
         patch.days().forEach(dayDtoPatch -> {
@@ -102,19 +79,19 @@ public class ScheduleService {
         return schedule;
     }
 
+
     public Schedule getSchedule(Long id) {
         return scheduleRepository.findById(id)
                 .orElseThrow(() -> new CustomException(ErrorCode.SCHEDULE_NOT_FOUND));
     }
 
-    @Transactional
     public void deleteSchedule(Long id) {
         Schedule schedule = getSchedule(id);
         scheduleRepository.delete(schedule);
     }
 
     public List<Schedule> getSchedules(String keyword, String sort, Pageable pageable) {
-        List<Schedule> schedules = scheduleRepository.findAllByTitleContainingAndViewYnNot(keyword, true, PageRequest.of(pageable.getPageNumber(), pageable.getPageSize()));
+        List<Schedule> schedules = scheduleRepository.findAllByTitleContaining(keyword, PageRequest.of(pageable.getPageNumber(), pageable.getPageSize()));
         return schedules;
     }
 
@@ -152,74 +129,5 @@ public class ScheduleService {
         User findUser = userService.getVerifyUser(userId);
         Schedule findSchedule = getSchedule(scheduleId);
         scheduleBookmarkRepository.deleteByUserAndSchedule(findUser, findSchedule);
-    }
-
-    @Transactional
-    public void createLike(Long scheduleId, Long userId) {
-        User findUser = userService.getVerifyUser(userId);
-        Schedule findSchedule = getSchedule(scheduleId);
-
-        // 오늘의 시작 시간과 끝 시간을 구하기
-        LocalDate today = LocalDate.now();
-        LocalDateTime startOfDay = today.atStartOfDay();
-        LocalDateTime endOfDay = today.atTime(LocalTime.MAX);
-
-        // 찾은 범위를 바탕으로 해당 스케줄에 해당 유저가 좋아요를 했는지 검증
-        if (scheduleLikeRepository.existsByCreatedAtBetweenAndUserAndSchedule(startOfDay, endOfDay, findUser, findSchedule)) {
-            throw new CustomException(ErrorCode.TOO_MANY_LIKES);
-        }
-
-        // 좋아요 생성
-        ScheduleLike scheduleLike = new ScheduleLike(findUser);
-        findSchedule.addLike(scheduleLike);
-        scheduleLikeRepository.save(scheduleLike);
-    }
-
-    @Transactional
-    public void createComment(Long scheduleId, CommentDto.Post post) {
-        // 스케줄 예외 처리
-        Schedule findSchedule = getSchedule(scheduleId);
-
-        // 유저 예외 처리
-        User findUser = userService.getVerifyUser(post.userId());
-
-        // 댓글 생성
-        Comment comment = new Comment(findUser, post.content());
-        findSchedule.addComments(comment);
-        commentRepository.save(comment);
-    }
-
-    @Transactional
-    public void updateComment(Long scheduleId, Long commentId, CommentDto.Patch patch) {
-        // 스케줄 예외 처리
-        getSchedule(scheduleId);
-
-        // 유저 예외 처리
-        User findUser = userService.getVerifyUser(patch.userId());
-
-        // 댓글 가져오기
-        Comment findComment = commentRepository.findById(commentId)
-                .orElseThrow(() -> new CustomException(ErrorCode.COMMENT_NOT_FOUND));
-
-        // 유저 검증
-        if (!findUser.getEmail().equals(findComment.getUser().getEmail())) {
-            throw new CustomException(ErrorCode.DIFFERENT_USER);
-        }
-
-        // 댓글 수정
-        findComment.update(patch);
-        commentRepository.save(findComment);
-    }
-
-    @Transactional
-    public void deleteComment(Long scheduleId, Long commentId) {
-        // 스케줄 예외 처리
-        getSchedule(scheduleId);
-
-        // 댓글 가져오기
-        Comment findComment = commentRepository.findById(commentId)
-                .orElseThrow(() -> new CustomException(ErrorCode.COMMENT_NOT_FOUND));
-
-        commentRepository.delete(findComment);
     }
 }

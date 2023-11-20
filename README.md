@@ -3,7 +3,7 @@
 ### tools
 
 - Spring Framework 2.7.16
-- Java 17
+- Java 11
 
 - aws ec2 instance : ubuntu
 
@@ -13,14 +13,18 @@
 #### 1. project clone
 
 ```
-$ git clone --recurse-submodules {레포주소}
+$ git clone [repository HTTP or SSH]
 
-#### 서브모듈 업데이트하는 방법
-$ git submodule update --remote --merge
+# submodule 초기화
+$ git submodule init
+
+# submodule update
+$ git submodule update
+```
 
 #### 2. gradle
 ```
-# build.gralde에 아래 내용 없으면 추가
+# build.gralde에 아래 내용 추가
 
 # ./security에서 src/main/resouces로 폴더 copy
 processResources.dependsOn('copySecret')

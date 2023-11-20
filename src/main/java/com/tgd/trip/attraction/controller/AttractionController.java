@@ -4,10 +4,8 @@ import com.tgd.trip.attraction.domain.Attraction;
 import com.tgd.trip.attraction.dto.AttractionDto;
 import com.tgd.trip.attraction.mapper.AttractionMapper;
 import com.tgd.trip.attraction.service.AttractionService;
-import com.tgd.trip.global.dto.PageResponse;
 import com.tgd.trip.global.util.Coordinate;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
@@ -27,22 +25,20 @@ public class AttractionController {
     @GetMapping("/all")
     public ResponseEntity<?> getAllAttractions(Coordinate coordinate,
                                                @RequestParam(name = "height", required = false) Double height,
-                                               @RequestParam(name = "width", required = false) Double width,
-                                               @PageableDefault(page = 1) Pageable pageable) {
-        Page<Attraction> attractions = attractionService.getAttractionsFromCenter(coordinate, height, width, pageable);
-        Page<AttractionDto.Response> responsePage = attractionMapper.entityToPageResponse(attractions);
+                                               @RequestParam(name = "width", required = false) Double width) {
+        System.out.println(coordinate.longitude() + " " + coordinate.latitude());
+        List<Attraction> attractions = attractionService.getAttractionsFromCenter(coordinate, height, width);
         List<AttractionDto.Response> responses = attractionMapper.entityToResponse(attractions);
-        return ResponseEntity.ok(new PageResponse<>(responses, responsePage));
+        return ResponseEntity.ok(responses);
     }
 
-    @GetMapping
-    public ResponseEntity<PageResponse<AttractionDto.Response>> getAttractions(@RequestParam String keyword,
-                                                                               @RequestParam(name = "sidoCode", required = false) Long sidoCode,
-                                                                               @PageableDefault(page = 1) Pageable pageable) {
-        Page<Attraction> attractions = attractionService.getAttractions(keyword, sidoCode, pageable);
-        Page<AttractionDto.Response> responsePage = attractionMapper.entityToPageResponse(attractions);
+    @GetMapping()
+    public ResponseEntity<?> getAttractions(@RequestParam(name = "sido_code", required = false) Long sidoCode,
+                                            @RequestParam(name = "gugun_code", required = false) Long gugunCode,
+                                            @PageableDefault Pageable pageable) {
+        List<Attraction> attractions = attractionService.getAttractions(gugunCode, sidoCode, pageable);
         List<AttractionDto.Response> responses = attractionMapper.entityToResponse(attractions);
-        return ResponseEntity.ok(new PageResponse<>(responses, responsePage));
+        return ResponseEntity.ok(responses);
     }
 
     @PostMapping(value = "{attraction-id}/wish")
@@ -56,20 +52,6 @@ public class AttractionController {
     public ResponseEntity<?> deleteAttractionBookmark(@PathVariable("attraction-id") Long attractionId,
                                                       @RequestParam("userId") Long userId) {
         attractionService.deleteBookmark(attractionId, userId);
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
-    }
-
-    @PostMapping(value = "{attraction-id}/like")
-    public ResponseEntity<?> createAttractionLike(@PathVariable("attraction-id") Long attractionId,
-                                                  @RequestParam("userId") Long userId) {
-        attractionService.createLike(attractionId, userId);
-        return ResponseEntity.status(HttpStatus.CREATED).build();
-    }
-
-    @DeleteMapping(value = "{attraction-id}/like")
-    public ResponseEntity<?> deleteAttractionLike(@PathVariable("attraction-id") Long attractionId,
-                                                  @RequestParam("userId") Long userId) {
-        attractionService.deleteLike(attractionId, userId);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 }

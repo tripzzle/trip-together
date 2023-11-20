@@ -5,8 +5,6 @@ import lombok.*;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
-import java.util.ArrayList;
-import java.util.List;
 
 @Entity
 @Getter
@@ -43,13 +41,4 @@ public class Attraction extends BaseEntity {
             @JoinColumn(name = "sido_code")
     })
     private Gugun gugun;
-    @OneToMany(mappedBy = "attraction", cascade = CascadeType.PERSIST, fetch = FetchType.LAZY, orphanRemoval = true)
-    private List<AttractionLike> attractionLikes = new ArrayList<>();
-
-    public void addLike(AttractionLike attractionLike) {
-        if (!this.attractionLikes.contains(attractionLike)) {
-            attractionLikes.add(attractionLike);
-        }
-        attractionLike.setAttraction(this);
-    }
 }

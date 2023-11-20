@@ -1,16 +1,16 @@
-package com.tgd.trip.user.service;
+package com.tgd.trip.global.oauth2.util;
 
 
 import com.tgd.trip.exception.CustomException;
 import com.tgd.trip.exception.ExceptionCode;
-import com.tgd.trip.user.domain.*;
+import com.tgd.trip.global.oauth2.dto.ProviderType;
+import com.tgd.trip.global.oauth2.dto.UserInfo.GoogleUserInfo;
+import com.tgd.trip.global.oauth2.dto.UserInfo.KakaoUserInfo;
+import com.tgd.trip.global.oauth2.dto.UserInfo.OAuth2UserInfo;
 import lombok.Builder;
 import lombok.Getter;
-import org.springframework.security.crypto.password.PasswordEncoder;
 
-import java.util.Collections;
 import java.util.Map;
-import java.util.UUID;
 
 @Getter
 public class OAuthAttributes {
@@ -31,6 +31,8 @@ public class OAuthAttributes {
             return ofGoogle(providerId, attributes);
         }else if(provider.equals(ProviderType.KAKAO.getProvider())){
             return ofKakao(providerId, attributes);
+        }else if(provider.equals(ProviderType.NAVER.getProvider())){
+            return ofNaver(providerId, attributes);
         }
         throw new CustomException(ExceptionCode.PROVIDER_NOT_FOUND);
     }
@@ -45,6 +47,14 @@ public class OAuthAttributes {
 
     private static OAuthAttributes ofKakao(String providerId,
                                             Map<String, Object> attributes) {
+        return OAuthAttributes.builder()
+                .providerId(providerId)
+                .oAuth2UserInfo(new KakaoUserInfo(attributes))
+                .build();
+    }
+
+    private static OAuthAttributes ofNaver(String providerId,
+                                           Map<String, Object> attributes) {
         return OAuthAttributes.builder()
                 .providerId(providerId)
                 .oAuth2UserInfo(new KakaoUserInfo(attributes))

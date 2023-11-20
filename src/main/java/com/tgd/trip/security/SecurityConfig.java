@@ -51,14 +51,14 @@ public class SecurityConfig {
                 .cors().configurationSource(corsConfigurationSource())  // CORS 구성을 위한 설정 소스를 지정합니다.
 
                 .and()
-                .headers().frameOptions().disable()  // X-Frame-Options를 비활성화합니다.
+//                .headers().frameOptions().disable()  // X-Frame-Options를 비활성화합니다.
 
-                .and()
+//                .and()
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)  // 세션을 상태 없이 관리합니다.
 
                 .and()
                 .authorizeRequests() // 요청에 대한 사용 권한 체크 시작
-                .antMatchers(HttpMethod.GET,"/api/user/**").authenticated()
+                .antMatchers("/api/user/**").authenticated()
                 .anyRequest().permitAll()
                 .and().addFilterBefore(new JwtAuthenticationFilter(jwtTokenProvider), UsernamePasswordAuthenticationFilter.class)
 
@@ -75,12 +75,12 @@ public class SecurityConfig {
         // CORS 구성을 위한 CorsConfigurationSource를 설정합니다.
 
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of("*"));  // 모든 Origin을 허용합니다.
+//        configuration.setAllowedOrigins(List.of("*"));  // 모든 Origin을 허용합니다.
+        configuration.setAllowedOriginPatterns(List.of("*"));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PATCH", "PUT", "DELETE", "HEAD"));  // 허용할 HTTP 메서드를 설정합니다.
         configuration.setAllowedHeaders(List.of("*"));  // 모든 헤더를 허용합니다.
         configuration.setExposedHeaders(List.of("*"));  // 노출할 헤더를 설정합니다.
         configuration.setAllowCredentials(false);  // 인증 정보를 포함하지 않도록 설정합니다.
-
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);  // 모든 경로에 대해 CORS 구성을 적용합니다.
 

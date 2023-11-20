@@ -8,5 +8,5 @@ import java.util.List;
 
 public interface ScheduleRepository extends JpaRepository<Schedule, Long> {
 
-    List<Schedule> findAllByTitleContainingAndViewYnNot(String keyword, Boolean viewYn, Pageable pageable);
+    List<Schedule> findAllByTitleContaining(String keyword, Pageable pageable);
 }

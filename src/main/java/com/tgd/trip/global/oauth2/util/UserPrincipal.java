@@ -1,5 +1,6 @@
-package com.tgd.trip.user.domain;
+package com.tgd.trip.global.oauth2.util;
 
+import com.tgd.trip.user.domain.User;
 import com.tgd.trip.util.AuthorityUtils;
 import lombok.Getter;
 import org.springframework.security.core.GrantedAuthority;
