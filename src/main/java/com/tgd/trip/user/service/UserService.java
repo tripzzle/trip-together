@@ -2,8 +2,8 @@ package com.tgd.trip.user.service;
 
 import com.tgd.trip.jwt.JwtTokenProvider;
 import com.tgd.trip.user.domain.Role;
-import com.tgd.trip.user.domain.SignupDto;
 import com.tgd.trip.user.domain.User;
+import com.tgd.trip.user.dto.SignupDto;
 import com.tgd.trip.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

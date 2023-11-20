@@ -1,5 +1,6 @@
-package com.tgd.trip.user.domain;
+package com.tgd.trip.user.dto;
 
+import com.tgd.trip.user.domain.User;
 import lombok.*;
 
 import java.time.LocalDate;

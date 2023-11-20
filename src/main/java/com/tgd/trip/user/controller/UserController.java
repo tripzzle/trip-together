@@ -2,7 +2,7 @@ package com.tgd.trip.user.controller;
 
 import com.tgd.trip.jwt.JwtTokenProvider;
 import com.tgd.trip.security.SecurityUser;
-import com.tgd.trip.user.domain.SignupDto;
+import com.tgd.trip.user.dto.SignupDto;
 import com.tgd.trip.user.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
