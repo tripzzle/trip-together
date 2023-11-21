@@ -82,7 +82,7 @@ public class SecurityConfig {
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PATCH", "PUT", "DELETE", "HEAD"));  // 허용할 HTTP 메서드를 설정합니다.
         configuration.setAllowedHeaders(List.of("*"));  // 모든 헤더를 허용합니다.
         configuration.setExposedHeaders(List.of("*"));  // 노출할 헤더를 설정합니다.
-        configuration.setAllowCredentials(false);  // 인증 정보를 포함하지 않도록 설정합니다.
+        configuration.setAllowCredentials(true);  // 인증 정보를 포함하지 않도록 설정합니다.
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);  // 모든 경로에 대해 CORS 구성을 적용합니다.
 

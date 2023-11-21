@@ -9,6 +9,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
 import org.springframework.ui.Model;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.Cookie;
@@ -16,6 +17,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 
 @Component
 @RequiredArgsConstructor
@@ -36,23 +38,22 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
     private void loginSuccess(HttpServletRequest request, HttpServletResponse response, CustomOAuth2User oAuth2User) throws IOException {
         String accessToken = jwtTokenProvider.createToken(oAuth2User.getUserId(), oAuth2User.getRoles());
 
-        Cookie cookie = new Cookie("Authorization", accessToken);
-
-        // 쿠키 설정
-        cookie.setPath("/");
-        cookie.setHttpOnly(false);
-        cookie.setSecure(false); // HTTPS를 사용할 때만 쿠키가 전송되도록 설정
-        response.addCookie(cookie); // 쿠키를 응답에 추가
-
-        log.info("cookie : {}", cookie);
         log.info("oauth email : {} login success", oAuth2User.getUserId());
         log.info("oauth role : {}", oAuth2User.getRoles());
         log.info("accessToken 여기까진 온다 : {}", accessToken);
 
-        String  redirectUrl = "http://localhost:5173/login";
+        response.sendRedirect(createURI(accessToken));
+    }
 
-        log.info("Url : {}", redirectUrl);
-
-        response.sendRedirect(redirectUrl);
+    private String createURI(String accessToken) {
+        return UriComponentsBuilder.newInstance()
+                .scheme("http")
+                .host("localhost")
+                .port(5173)
+                .path("login")
+                .queryParam("Authorization", accessToken)
+                .encode(StandardCharsets.UTF_8)
+                .build()
+                .toUriString();
     }
 }
