@@ -25,9 +25,10 @@ public class UserController {
     private final UserService userService;
 
     @GetMapping("/signup")
-    public ResponseEntity<SignupDto> signup(@AuthenticationPrincipal SecurityUser securityUser, @RequestParam Long userId) {
+    public ResponseEntity<SignupDto> signup(@AuthenticationPrincipal SecurityUser securityUser) {
         System.out.println("회원가입 요청옴");
         SignupDto tempuser = null;
+        Long userId =  securityUser.getMember().getUserId();
         System.out.println(userId);
         if (securityUser.getAuthorities().stream().anyMatch(auth -> auth.getAuthority().equals("ROLE_GEST"))) {            // 요청한 유저가 게스트 라면
             tempuser = userService.getSignup(userId);
@@ -37,11 +38,13 @@ public class UserController {
     }
 
     @GetMapping("/mypage")
-    public ResponseEntity<User> getUserInfo(@AuthenticationPrincipal SecurityUser securityUser,
-                                            @RequestParam Long userId) {
+    public ResponseEntity<User> getUserInfo(@AuthenticationPrincipal SecurityUser securityUser) {
         User user = null;
-        if (securityUser.getAuthorities().stream().anyMatch(auth -> auth.getAuthority().equals("ROLE_GEST"))) {            // 요청한 유저가 게스트 라면
+
+        Long userId =  securityUser.getMember().getUserId();
+        if (securityUser.getAuthorities().stream().anyMatch(auth -> auth.getAuthority().equals("ROLE_USER"))) {            // 요청한 유저가 게스트 라면
             user = userService.getUserInfo(userId);
+            System.out.println("유저 찾음" + user);
         }
 
         return ResponseEntity.ok(user);
