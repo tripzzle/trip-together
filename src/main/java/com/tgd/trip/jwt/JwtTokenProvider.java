@@ -50,9 +50,8 @@ public class JwtTokenProvider {
     // JWT 토큰에서 인증 정보 조회
     public Authentication getAuthentication(String token) {
         System.out.println("여기느옴?");
-//        UserDetails userDetails = userDetailsService.loadUserByUsername(this.getUserPK(token));
         SecurityUser userDetails = (SecurityUser) userDetailsService.loadUserByUsername(this.getUserPK(token));
-//        System.out.println(userDetails.getAuthorities());
+        System.out.println("이게 뭐노" + userDetails);
         return new UsernamePasswordAuthenticationToken(userDetails, "", userDetails.getAuthorities());
     }
 
