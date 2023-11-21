@@ -14,14 +14,16 @@ public class ScheduleDto {
     }
 
     @Builder
-    public record Response(Long scheduleId, String title, String content, String imgUrl, Boolean viewYn,
+    public record Response(Long scheduleId, String title, String content, String imgUrl, Boolean viewYn, Long likeCount,
+                           Long wishCount,
                            List<DayDto.Response> dayResponses,
                            UserDto.SimpleResponse user
     ) {
     }
 
     @Builder
-    public record SimpleResponse(Long scheduleId, String title, String content, String imgUrl,
+    public record SimpleResponse(Long scheduleId, String title, String content, String imgUrl, Long likeCount,
+                                 Long wishCount,
                                  List<DayDto.DateResponse> days,
                                  UserDto.SimpleResponse user) {
     }

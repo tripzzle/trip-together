@@ -2,6 +2,7 @@ package com.tgd.trip.attraction.domain;
 
 import com.tgd.trip.global.BaseEntity;
 import lombok.*;
+import org.hibernate.annotations.Formula;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
@@ -27,6 +28,10 @@ public class Attraction extends BaseEntity {
     private String zipCode;
     private String tel;
     private String imgUrl;
+    @Formula("(select count(*) from attraction_like al where al.attraction_id = attraction_id)")
+    private Long likeCount = 0L;
+    @Formula("(select count(*) from attraction_bookmark ab where ab.attraction_id = attraction_id)")
+    private Long wishCount = 0L;
     @NotNull
     private Double latitude;
     @NotNull
