@@ -28,7 +28,7 @@ public class DayAttraction extends BaseEntity {
 
     public DayAttraction(Attraction attraction, String memo) {
         this.attraction = attraction;
-        Optional.of(memo)
+        Optional.ofNullable(memo)
                 .ifPresent(this::setMemo);
     }
 }

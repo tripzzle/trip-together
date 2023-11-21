@@ -76,6 +76,7 @@ public class OAuth2UserService extends DefaultOAuth2UserService {
                     .providerId(providerId)
                     .provider(provider)
                     .build();
+            log.info("user: {}", user);
             userRepository.save(user);
         }
         Map<String, Object> attributes = oAuth2User.getAttributes();
