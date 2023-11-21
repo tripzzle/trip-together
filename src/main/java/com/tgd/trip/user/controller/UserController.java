@@ -48,21 +48,12 @@ public class UserController {
 
     @PostMapping("/signup")
     public ResponseEntity<String> signup(@AuthenticationPrincipal SecurityUser securityUser,
-                                         @RequestParam("userInfo") String userInfoStr,
-                                         @RequestParam(value = "file", required = false) MultipartFile file) {
-        System.out.println("사진 왔어용" + userInfoStr);
+                                         @RequestPart("userInfo") SignupDto userInfo,
+                                         @RequestPart(value = "file", required = false) MultipartFile file) {
         String newToken = null;
-        ObjectMapper objectMapper = new ObjectMapper();
-        SignupDto userInfo = null;
-        try {
-            userInfo = objectMapper.readValue(userInfoStr, SignupDto.class);
 
-            if (securityUser.getAuthorities().stream().anyMatch(auth -> auth.getAuthority().equals("ROLE_GEST"))) {            // 요청한 유저가 게스트 라면
-                newToken = userService.postSignup(userInfo, file);
-            }
-
-        } catch (JsonProcessingException e) {
-            e.printStackTrace();
+        if (securityUser.getAuthorities().stream().anyMatch(auth -> auth.getAuthority().equals("ROLE_GEST"))) {            // 요청한 유저가 게스트 라면
+            newToken = userService.postSignup(userInfo, file);
         }
 
         return ResponseEntity.ok(newToken);
