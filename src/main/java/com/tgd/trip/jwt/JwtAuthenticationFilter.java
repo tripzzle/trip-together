@@ -25,13 +25,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         if (token != null && jwtTokenProvider.validateToken(token)) {
             // 토큰이 유효하면 토큰으로부터 유저 정보를 받아옴
             Authentication authentication = jwtTokenProvider.getAuthentication(token);
-            System.out.println(authentication.getPrincipal());
-            // SecurityContext에 Authentication 객체를 저장
-//            System.out.println(authentication.getAuthorities());
+            System.out.println("토큰으로 받아온 유저정보" + authentication.getPrincipal());
+
             SecurityContextHolder.getContext().setAuthentication(authentication);
-
-//            logger.debug("Security Context에 '{}' 인증 정보를 저장했습니다, uri: {}", authentication.getName(), requestURI);
-
+            
         }
         filterChain.doFilter(request, response);
     }
