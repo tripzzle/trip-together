@@ -43,13 +43,14 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
         cookie.setHttpOnly(false);
         cookie.setSecure(false); // HTTPS를 사용할 때만 쿠키가 전송되도록 설정
         response.addCookie(cookie); // 쿠키를 응답에 추가
+        response.setHeader("Authorization", accessToken);
 
         log.info("cookie : {}", cookie);
         log.info("oauth email : {} login success", oAuth2User.getUserId());
         log.info("oauth role : {}", oAuth2User.getRoles());
         log.info("accessToken 여기까진 온다 : {}", accessToken);
 
-        String  redirectUrl = "http://localhost:5173/login";
+        String redirectUrl = "http://localhost:5173/login";
 
         log.info("Url : {}", redirectUrl);
 
