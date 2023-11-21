@@ -37,7 +37,8 @@ public class UserController {
     }
 
     @GetMapping("/mypage")
-    public ResponseEntity<User> getUserInfo(@AuthenticationPrincipal SecurityUser securityUser, @RequestParam Long userId) {
+    public ResponseEntity<User> getUserInfo(@AuthenticationPrincipal SecurityUser securityUser,
+                                            @RequestParam Long userId) {
         User user = null;
         if (securityUser.getAuthorities().stream().anyMatch(auth -> auth.getAuthority().equals("ROLE_GEST"))) {            // 요청한 유저가 게스트 라면
             user = userService.getUserInfo(userId);
