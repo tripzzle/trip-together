@@ -66,6 +66,8 @@ public class UserService {
             if(file != null){
                 imgUrl = s3Uploader.saveUploadFile(file);
                 imgUrl = s3Uploader.getFilePath(imgUrl);
+            }else {
+                imgUrl = "https://tgd-bucket.s3.ap-northeast-2.amazonaws.com/pxfuel.jpg";
             }
             oldUser.setImgUrl(imgUrl);
             System.out.println(oldUser);
