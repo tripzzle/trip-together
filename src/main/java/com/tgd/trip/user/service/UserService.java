@@ -1,7 +1,15 @@
 package com.tgd.trip.user.service;
 
+import com.tgd.trip.attraction.domain.Attraction;
+import com.tgd.trip.attraction.domain.AttractionBookmark;
+import com.tgd.trip.attraction.repository.AttractionBookmarkRepository;
+import com.tgd.trip.attraction.repository.AttractionRepository;
 import com.tgd.trip.global.s3.S3Uploader;
 import com.tgd.trip.jwt.JwtTokenProvider;
+import com.tgd.trip.schedule.domain.Schedule;
+import com.tgd.trip.schedule.domain.ScheduleBookmark;
+import com.tgd.trip.schedule.repository.ScheduleBookmarkRepository;
+import com.tgd.trip.schedule.repository.ScheduleRepository;
 import com.tgd.trip.user.domain.Role;
 import com.tgd.trip.user.domain.User;
 import com.tgd.trip.user.dto.SignupDto;
@@ -13,12 +21,16 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Service
 public class UserService {
 
     private final UserRepository userRepository;
+    private final ScheduleRepository scheduleRepository;
+    private final ScheduleBookmarkRepository scheduleBookmarkRepository;
+    private final AttractionBookmarkRepository attractionBookmarkRepository;
     private final S3Uploader s3Uploader;
     private final JwtTokenProvider provider;
 
@@ -83,5 +95,24 @@ public class UserService {
 
     public void createUser(User user) {
         userRepository.save(user);
+    }
+
+
+    public List<Schedule> userSchedule(Long userId) {
+        User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
+        return scheduleRepository.findAllByUser(user);
+    }
+
+    public List<Schedule> userWishSD(Long userId) {
+        User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
+        List<ScheduleBookmark> bookmarks = scheduleBookmarkRepository.findAllByUser(user);
+        return bookmarks.stream().map(ScheduleBookmark::getSchedule).collect(Collectors.toList());
+    }
+
+    public List<Attraction> userWishAT(Long userId) {
+        User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
+        List<AttractionBookmark> bookmarks = attractionBookmarkRepository.findAllByUser(user);
+
+        return bookmarks.stream().map(AttractionBookmark::getAttraction).collect(Collectors.toList());
     }
 }

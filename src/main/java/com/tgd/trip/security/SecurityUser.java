@@ -16,6 +16,8 @@ public class SecurityUser extends User {
                         .collect(Collectors.toList()));
 
         this.user = user;
+        System.out.println("시큐리티 유저 정보 만들었다!!!!" + this.getMember().getUserId());
+
     }
 
     public com.tgd.trip.user.domain.User getMember() {
