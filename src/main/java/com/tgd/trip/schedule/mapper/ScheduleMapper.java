@@ -2,9 +2,7 @@ package com.tgd.trip.schedule.mapper;
 
 import com.tgd.trip.attraction.dto.AttractionDto;
 import com.tgd.trip.schedule.domain.Schedule;
-import com.tgd.trip.schedule.dto.CommentDto;
-import com.tgd.trip.schedule.dto.DayDto;
-import com.tgd.trip.schedule.dto.ScheduleDto;
+import com.tgd.trip.schedule.dto.*;
 import com.tgd.trip.user.dto.UserDto;
 import org.springframework.stereotype.Component;
 
@@ -19,6 +17,9 @@ public class ScheduleMapper {
                 .title(schedule.getTitle())
                 .content(schedule.getContent())
                 .viewYn(schedule.getViewYn())
+                .imgUrl(schedule.getImgUrl())
+                .wishCount(schedule.getWishCount())
+                .likeCount(schedule.getLikeCount())
                 .dayResponses(schedule.getDays().stream()
                         .map(day -> new DayDto.Response(
                                 day.getDayId(),
@@ -44,6 +45,8 @@ public class ScheduleMapper {
                         .title(schedule.getTitle())
                         .content(schedule.getContent())
                         .imgUrl(schedule.getImgUrl())
+                        .wishCount(schedule.getWishCount())
+                        .likeCount(schedule.getLikeCount())
                         .days(schedule.getDays().stream()
                                 .map(day -> new DayDto.DateResponse(day.getDayId(), day.getDate()))
                                 .toList())
