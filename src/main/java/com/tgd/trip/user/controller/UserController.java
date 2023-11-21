@@ -1,5 +1,7 @@
 package com.tgd.trip.user.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tgd.trip.jwt.JwtTokenProvider;
 import com.tgd.trip.security.SecurityUser;
 import com.tgd.trip.user.domain.User;
@@ -46,13 +48,21 @@ public class UserController {
 
     @PostMapping("/signup")
     public ResponseEntity<String> signup(@AuthenticationPrincipal SecurityUser securityUser,
-                                         @RequestPart SignupDto userInfo,
-                                         @RequestPart(value = "file", required = false) MultipartFile file) {
-        System.out.println("회원가입 추가정보 받음!!!" + userInfo);
-        System.out.println("사진 왔어용" + file);
+                                         @RequestParam("userInfo") String userInfoStr,
+                                         @RequestParam(value = "file", required = false) MultipartFile file) {
+        System.out.println("사진 왔어용" + userInfoStr);
         String newToken = null;
-        if (securityUser.getAuthorities().stream().anyMatch(auth -> auth.getAuthority().equals("ROLE_GEST"))) {            // 요청한 유저가 게스트 라면
-            newToken = userService.postSignup(userInfo, file);
+        ObjectMapper objectMapper = new ObjectMapper();
+        SignupDto userInfo = null;
+        try {
+            userInfo = objectMapper.readValue(userInfoStr, SignupDto.class);
+
+            if (securityUser.getAuthorities().stream().anyMatch(auth -> auth.getAuthority().equals("ROLE_GEST"))) {            // 요청한 유저가 게스트 라면
+                newToken = userService.postSignup(userInfo, file);
+            }
+
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
         }
 
         return ResponseEntity.ok(newToken);
