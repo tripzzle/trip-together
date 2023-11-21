@@ -42,20 +42,20 @@ public class Schedule extends BaseEntity {
                 .ifPresent(this::setTitle);
         Optional.of(post.content())
                 .ifPresent(this::setContent);
-        Optional.of(imgUrl)
+        Optional.ofNullable(imgUrl)
                 .ifPresent(this::setImgUrl);
         Optional.of(post.viewYn())
                 .ifPresent(this::setViewYn);
     }
 
     public void updateSchedule(ScheduleDto.Patch patch, String imgUrl) {
-        Optional.of(patch.title())
+        Optional.ofNullable(patch.title())
                 .ifPresent(this::setTitle);
-        Optional.of(patch.content())
+        Optional.ofNullable(patch.content())
                 .ifPresent(this::setContent);
-        Optional.of(imgUrl)
+        Optional.ofNullable(imgUrl)
                 .ifPresent(this::setImgUrl);
-        Optional.of(patch.viewYn())
+        Optional.ofNullable(patch.viewYn())
                 .ifPresent(this::setViewYn);
     }
 
