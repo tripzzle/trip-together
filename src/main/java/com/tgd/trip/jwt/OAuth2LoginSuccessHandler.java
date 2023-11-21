@@ -41,7 +41,7 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
         // 쿠키 설정
         cookie.setPath("/");
         cookie.setHttpOnly(false);
-        cookie.setSecure(true); // HTTPS를 사용할 때만 쿠키가 전송되도록 설정
+        cookie.setSecure(false); // HTTPS를 사용할 때만 쿠키가 전송되도록 설정
         response.addCookie(cookie); // 쿠키를 응답에 추가
 
         log.info("cookie : {}", cookie);
