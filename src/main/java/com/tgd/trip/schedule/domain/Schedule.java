@@ -1,5 +1,6 @@
 package com.tgd.trip.schedule.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.tgd.trip.global.BaseEntity;
 import com.tgd.trip.schedule.dto.ScheduleDto;
 import com.tgd.trip.user.domain.User;
@@ -15,6 +16,7 @@ import java.util.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@ToString
 public class Schedule extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
