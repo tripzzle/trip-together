@@ -1,5 +1,9 @@
 version: "4"
 services:
+  app:
+    image: ejoh/trip-together
+    environment:
+      TZ: "Asia/Seoul"
   springboot:
     image: ejoh/trip-together
     container_name: trip-together
