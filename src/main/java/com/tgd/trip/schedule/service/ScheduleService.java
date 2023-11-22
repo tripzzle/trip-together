@@ -156,6 +156,9 @@ public class ScheduleService {
     public void createBookmark(Long scheduleId, SecurityUser securityUser) {
         User findUser = userService.getVerifyUser(securityUser.getMember().getUserId());
         Schedule findSchedule = getSchedule(scheduleId);
+        if (!findSchedule.getUser().getEmail().equals(findUser.getEmail())) {
+            throw new CustomException(ErrorCode.DIFFERENT_USER);
+        }
         ScheduleBookmark scheduleBookmark = new ScheduleBookmark(findSchedule);
         findUser.addScheduleBookmark(scheduleBookmark);
         scheduleBookmarkRepository.save(scheduleBookmark);
@@ -165,6 +168,9 @@ public class ScheduleService {
     public void deleteBookmark(Long scheduleId, SecurityUser securityUser) {
         User findUser = userService.getVerifyUser(securityUser.getMember().getUserId());
         Schedule findSchedule = getSchedule(scheduleId);
+        if (!findSchedule.getUser().getEmail().equals(findUser.getEmail())) {
+            throw new CustomException(ErrorCode.DIFFERENT_USER);
+        }
         scheduleBookmarkRepository.deleteByUserAndSchedule(findUser, findSchedule);
     }
 
