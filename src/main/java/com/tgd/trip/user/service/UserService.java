@@ -3,7 +3,6 @@ package com.tgd.trip.user.service;
 import com.tgd.trip.attraction.domain.Attraction;
 import com.tgd.trip.attraction.domain.AttractionBookmark;
 import com.tgd.trip.attraction.repository.AttractionBookmarkRepository;
-import com.tgd.trip.attraction.repository.AttractionRepository;
 import com.tgd.trip.global.s3.S3Uploader;
 import com.tgd.trip.jwt.JwtTokenProvider;
 import com.tgd.trip.schedule.domain.Schedule;
@@ -12,6 +11,7 @@ import com.tgd.trip.schedule.repository.ScheduleBookmarkRepository;
 import com.tgd.trip.schedule.repository.ScheduleRepository;
 import com.tgd.trip.user.domain.Role;
 import com.tgd.trip.user.domain.User;
+import com.tgd.trip.user.domain.UserStatus;
 import com.tgd.trip.user.dto.SignupDto;
 import com.tgd.trip.user.dto.UserDto;
 import com.tgd.trip.user.repository.UserRepository;
@@ -22,6 +22,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
@@ -134,5 +135,18 @@ public class UserService {
         userRepository.save(member);
 
         return member;
+    }
+
+    public void userDelete(User member) {
+        UUID uuid = UUID.randomUUID();
+        member.setName(uuid.toString());
+        member.setNickName(uuid.toString());
+        member.setEmail(uuid.toString());
+        member.setRoles(Collections.emptyList());
+        member.setProvider(uuid.toString());
+        member.setProviderId(uuid.toString());
+        member.setStatus(UserStatus.DELETE);
+        member.setImgUrl("");
+        userRepository.save(member);
     }
 }

@@ -88,6 +88,17 @@ public class UserController {
 
     }
 
+    @PatchMapping("/userdelete")
+    public ResponseEntity<?> userDelete(@AuthenticationPrincipal SecurityUser securityUser,
+                                        @RequestPart UserDto.Patch delete){
+        if(securityUser.getMember().getUserId() == delete.userId()){
+            userService.userDelete(securityUser.getMember());
+        }
+
+        return ResponseEntity.noContent().build();
+
+    }
+
     @GetMapping("/userSchedule")
     public ResponseEntity<?> userSchedule(@AuthenticationPrincipal SecurityUser securityUser) {
         List<Schedule> userSchedule = null;
