@@ -1,16 +1,20 @@
 package com.tgd.trip.schedule.controller;
 
+import com.tgd.trip.global.dto.PageResponse;
 import com.tgd.trip.schedule.domain.Schedule;
 import com.tgd.trip.schedule.dto.CommentDto;
 import com.tgd.trip.schedule.dto.ScheduleDto;
 import com.tgd.trip.schedule.mapper.ScheduleMapper;
 import com.tgd.trip.schedule.service.ScheduleService;
+import com.tgd.trip.security.SecurityUser;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -27,19 +31,21 @@ public class ScheduleController {
     private final ScheduleMapper scheduleMapper;
 
     @PostMapping
-    public ResponseEntity<?> createSchedule(@RequestPart ScheduleDto.Post post,
+    public ResponseEntity<?> createSchedule(@AuthenticationPrincipal SecurityUser securityUser,
+                                            @RequestPart ScheduleDto.Post post,
                                             @RequestParam(value = "image", required = false) MultipartFile file) {
         log.info(String.valueOf(post));
-        Schedule schedule = scheduleService.createSchedule(post, file);
+        Schedule schedule = scheduleService.createSchedule(post, securityUser, file);
         return ResponseEntity.created(URI.create(String.format("api/schedule/%s", schedule.getScheduleId()))).build();
     }
 
     @PatchMapping("{schedule-id}")
-    public ResponseEntity<?> updateSchedule(@PathVariable("schedule-id") Long id,
+    public ResponseEntity<?> updateSchedule(@AuthenticationPrincipal SecurityUser securityUser,
+                                            @PathVariable("schedule-id") Long id,
                                             @RequestPart ScheduleDto.Patch patch,
                                             @RequestParam(value = "image", required = false) MultipartFile file) {
         log.info(String.valueOf(patch));
-        Schedule schedule = scheduleService.updateSchedule(id, patch, file);
+        Schedule schedule = scheduleService.updateSchedule(securityUser, id, patch, file);
         ScheduleDto.Response response = scheduleMapper.entityToResponse(schedule);
         return ResponseEntity.ok(response);
     }
@@ -56,9 +62,9 @@ public class ScheduleController {
     public ResponseEntity<?> getSchedules(@RequestParam(required = false) String keyword,
                                           @RequestParam(required = false) String sort,
                                           @PageableDefault(page = 1, size = 20) Pageable pageable) {
-        List<Schedule> schedules = scheduleService.getSchedules(keyword, sort, pageable);
-        List<ScheduleDto.SimpleResponse> responses = scheduleMapper.simpleResponses(schedules);
-        return ResponseEntity.ok(responses);
+        Page<Schedule> schedules = scheduleService.getSchedules(keyword, sort, pageable);
+        Page<ScheduleDto.SimpleResponse> responses = scheduleMapper.simpleResponses(schedules);
+        return ResponseEntity.ok(new PageResponse<>(responses.getContent(), responses));
     }
 
     @DeleteMapping("{schedule-id}")
@@ -98,9 +104,10 @@ public class ScheduleController {
     }
 
     @PostMapping(value = "{schedule-id}/comment")
-    public ResponseEntity<?> createComment(@PathVariable("schedule-id") Long scheduleId,
+    public ResponseEntity<?> createComment(@AuthenticationPrincipal SecurityUser securityUser,
+                                           @PathVariable("schedule-id") Long scheduleId,
                                            @RequestBody CommentDto.Post post) {
-        scheduleService.createComment(scheduleId, post);
+        scheduleService.createComment(securityUser, scheduleId, post);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
@@ -120,9 +127,10 @@ public class ScheduleController {
     }
 
     @DeleteMapping(value = "{schedule-id}/comment/{comment-id}")
-    public ResponseEntity<?> deleteComment(@PathVariable("schedule-id") Long scheduleId,
+    public ResponseEntity<?> deleteComment(@AuthenticationPrincipal SecurityUser securityUser,
+                                           @PathVariable("schedule-id") Long scheduleId,
                                            @PathVariable("comment-id") Long commentId) {
-        scheduleService.deleteComment(scheduleId, commentId);
+        scheduleService.deleteComment(securityUser, scheduleId, commentId);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 }
