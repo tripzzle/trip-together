@@ -11,6 +11,9 @@ import java.util.List;
 public interface ScheduleBookmarkRepository extends JpaRepository<ScheduleBookmark, Long> {
 
     void deleteByUserAndSchedule(User user, Schedule schedule);
+
+    boolean existsScheduleBookmarkByUserAndSchedule(User user, Schedule schedule);
+
     List<ScheduleBookmark> findAllByUser(User user);
 
 }
