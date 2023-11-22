@@ -4,6 +4,7 @@ import com.tgd.trip.attraction.dto.AttractionDto;
 import com.tgd.trip.schedule.domain.Schedule;
 import com.tgd.trip.schedule.dto.*;
 import com.tgd.trip.user.dto.UserDto;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -38,27 +39,25 @@ public class ScheduleMapper {
                 .build();
     }
 
-    public List<ScheduleDto.SimpleResponse> simpleResponses(List<Schedule> schedules) {
-        return schedules.stream()
-                .map(schedule -> ScheduleDto.SimpleResponse.builder()
-                        .scheduleId(schedule.getScheduleId())
-                        .title(schedule.getTitle())
-                        .content(schedule.getContent())
-                        .imgUrl(schedule.getImgUrl())
-                        .wishCount(schedule.getWishCount())
-                        .likeCount(schedule.getLikeCount())
-                        .days(schedule.getDays().stream()
-                                .map(day -> new DayDto.DateResponse(day.getDayId(), day.getDate()))
-                                .toList())
-                        .user(UserDto.SimpleResponse.builder()
-                                .userId(schedule.getUser().getUserId())
-                                .nickname(schedule.getUser().getNickName())
-                                .imgUrl(schedule.getUser().getImgUrl())
-                                .birth(schedule.getUser().getBirth())
-                                .sex(schedule.getUser().getSex())
-                                .build()
-                        ).build())
-                .toList();
+    public Page<ScheduleDto.SimpleResponse> simpleResponses(Page<Schedule> schedules) {
+        return schedules.map(schedule -> ScheduleDto.SimpleResponse.builder()
+                .scheduleId(schedule.getScheduleId())
+                .title(schedule.getTitle())
+                .content(schedule.getContent())
+                .imgUrl(schedule.getImgUrl())
+                .wishCount(schedule.getWishCount())
+                .likeCount(schedule.getLikeCount())
+                .days(schedule.getDays().stream()
+                        .map(day -> new DayDto.DateResponse(day.getDayId(), day.getDate()))
+                        .toList())
+                .user(UserDto.SimpleResponse.builder()
+                        .userId(schedule.getUser().getUserId())
+                        .nickname(schedule.getUser().getNickName())
+                        .imgUrl(schedule.getUser().getImgUrl())
+                        .birth(schedule.getUser().getBirth())
+                        .sex(schedule.getUser().getSex())
+                        .build()
+                ).build());
     }
 
     public List<CommentDto.Response> entityToCommentResponse(Schedule schedule) {
