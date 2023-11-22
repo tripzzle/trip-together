@@ -1,5 +1,6 @@
 package com.tgd.trip.schedule.controller;
 
+import com.tgd.trip.global.dto.PageResponse;
 import com.tgd.trip.schedule.domain.Schedule;
 import com.tgd.trip.schedule.dto.CommentDto;
 import com.tgd.trip.schedule.dto.ScheduleDto;
@@ -8,6 +9,7 @@ import com.tgd.trip.schedule.service.ScheduleService;
 import com.tgd.trip.security.SecurityUser;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
@@ -60,9 +62,9 @@ public class ScheduleController {
     public ResponseEntity<?> getSchedules(@RequestParam(required = false) String keyword,
                                           @RequestParam(required = false) String sort,
                                           @PageableDefault(page = 1, size = 20) Pageable pageable) {
-        List<Schedule> schedules = scheduleService.getSchedules(keyword, sort, pageable);
-        List<ScheduleDto.SimpleResponse> responses = scheduleMapper.simpleResponses(schedules);
-        return ResponseEntity.ok(responses);
+        Page<Schedule> schedules = scheduleService.getSchedules(keyword, sort, pageable);
+        Page<ScheduleDto.SimpleResponse> responses = scheduleMapper.simpleResponses(schedules);
+        return ResponseEntity.ok(new PageResponse<>(responses.getContent(), responses));
     }
 
     @DeleteMapping("{schedule-id}")

@@ -16,8 +16,7 @@ import com.tgd.trip.user.domain.User;
 import com.tgd.trip.user.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -128,8 +127,8 @@ public class ScheduleService {
         scheduleRepository.delete(schedule);
     }
 
-    public List<Schedule> getSchedules(String keyword, String sort, Pageable pageable) {
-        List<Schedule> schedules = scheduleRepository.findAllByTitleContainingAndViewYnNot(keyword, true, PageRequest.of(pageable.getPageNumber(), pageable.getPageSize()));
+    public Page<Schedule> getSchedules(String keyword, String sort, Pageable pageable) {
+        Page<Schedule> schedules = scheduleRepository.findAllByTitleContainingAndViewYnNot(keyword, true, PageRequest.of(pageable.getPageNumber() - 1, pageable.getPageSize()));
         return schedules;
     }
 
