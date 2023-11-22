@@ -16,7 +16,6 @@ public class SignupDto {
     private String email;
     private LocalDate birth;
     private String nickName;
-    private String imgUrl;
     private Boolean sex;
 
     @Builder
@@ -26,7 +25,6 @@ public class SignupDto {
         this.email = user.getEmail();
         this.birth = user.getBirth();
         this.nickName = user.getNickName();
-        this.imgUrl = user.getImgUrl();
         this.sex = user.getSex();
     }
 }

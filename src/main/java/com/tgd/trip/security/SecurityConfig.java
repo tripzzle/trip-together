@@ -1,14 +1,14 @@
 package com.tgd.trip.security;
 
-import com.tgd.trip.jwt.*;
+import com.tgd.trip.jwt.JwtAuthenticationFilter;
+import com.tgd.trip.jwt.JwtTokenProvider;
+import com.tgd.trip.jwt.OAuth2LoginFailureHandler;
+import com.tgd.trip.jwt.OAuth2LoginSuccessHandler;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod;
-import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -82,7 +82,7 @@ public class SecurityConfig {
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PATCH", "PUT", "DELETE", "HEAD"));  // 허용할 HTTP 메서드를 설정합니다.
         configuration.setAllowedHeaders(List.of("*"));  // 모든 헤더를 허용합니다.
         configuration.setExposedHeaders(List.of("*"));  // 노출할 헤더를 설정합니다.
-        configuration.setAllowCredentials(false);  // 인증 정보를 포함하지 않도록 설정합니다.
+        configuration.setAllowCredentials(true);  // 인증 정보를 포함하지 않도록 설정합니다.
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);  // 모든 경로에 대해 CORS 구성을 적용합니다.
 
