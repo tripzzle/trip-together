@@ -13,6 +13,7 @@ import com.tgd.trip.schedule.repository.ScheduleRepository;
 import com.tgd.trip.user.domain.Role;
 import com.tgd.trip.user.domain.User;
 import com.tgd.trip.user.dto.SignupDto;
+import com.tgd.trip.user.dto.UserDto;
 import com.tgd.trip.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -114,5 +115,24 @@ public class UserService {
         List<AttractionBookmark> bookmarks = attractionBookmarkRepository.findAllByUser(user);
 
         return bookmarks.stream().map(AttractionBookmark::getAttraction).collect(Collectors.toList());
+    }
+
+    public User userUpdate(User member, UserDto.Patch patch, MultipartFile file) {
+        String imgUrl = "";
+        
+        System.out.println("유저업데이트 서비스 요청" + patch);
+        if(file != null){
+            imgUrl = s3Uploader.saveUploadFile(file);
+            imgUrl = s3Uploader.getFilePath(imgUrl);
+        }else {
+            imgUrl = patch.imgUrl();
+        }
+        member.userUpdate(patch, imgUrl);
+
+        System.out.println("유저업데이트 서비스 요청 이후" + member.getNickName());
+
+        userRepository.save(member);
+
+        return member;
     }
 }

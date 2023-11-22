@@ -9,6 +9,7 @@ import com.tgd.trip.security.SecurityUser;
 import com.tgd.trip.user.domain.User;
 import com.tgd.trip.user.dto.SignupDto;
 import com.tgd.trip.user.dto.UserDto;
+import com.tgd.trip.user.mapper.UserMapper;
 import com.tgd.trip.user.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -29,7 +30,7 @@ public class UserController {
     private final PasswordEncoder passwordEncoder;
     private final JwtTokenProvider jwtTokenProvider;
     private final UserService userService;
-
+    private final UserMapper userMapper;
     @GetMapping("/signup")
     public ResponseEntity<SignupDto> signup(@AuthenticationPrincipal SecurityUser securityUser) {
         System.out.println("회원가입 요청옴");
@@ -44,20 +45,20 @@ public class UserController {
     }
 
     @GetMapping("/mypage")
-    public ResponseEntity<User> getUserInfo(@AuthenticationPrincipal SecurityUser securityUser) {
-        User user = null;
+    public ResponseEntity<?> getUserInfo(@AuthenticationPrincipal SecurityUser securityUser) {
+        UserDto.Response response = null;
         try {
             Long userId = securityUser.getMember().getUserId();
             if (securityUser.getAuthorities().stream().anyMatch(auth -> auth.getAuthority().equals("ROLE_USER"))) {            // 요청한 유저가 게스트 라면
-                user = userService.getUserInfo(userId);
+                User user  = userService.getUserInfo(userId);
+                response  = userMapper.entityToResponse(user);
                 System.out.println("유저 찾음" + user);
             }
-            System.out.println("유저정보 반환" + user.toString());
         }catch (Exception e){
             System.out.println("문제발생!!");
             e.printStackTrace();
         }
-        return ResponseEntity.ok(user);
+        return ResponseEntity.ok(response);
     }
 
     @PostMapping("/signup")
@@ -73,18 +74,31 @@ public class UserController {
         return ResponseEntity.ok(newToken);
     }
 
+    @PatchMapping("/userupdate")
+    public ResponseEntity<?> userUpdate(@AuthenticationPrincipal SecurityUser securityUser,
+                                        @RequestPart UserDto.Patch patch,
+                                        @RequestPart(value = "file", required = false) MultipartFile file){
+        System.out.println("유저업데이트 컨트롤러 요청" + patch);
+
+        User user = userService.userUpdate(securityUser.getMember(), patch, file);
+
+        UserDto.Response response = userMapper.entityToResponse(user);
+
+        return ResponseEntity.ok(response);
+
+    }
+
     @GetMapping("/userSchedule")
     public ResponseEntity<?> userSchedule(@AuthenticationPrincipal SecurityUser securityUser) {
         List<Schedule> userSchedule = null;
         try {
             Long userId = securityUser.getMember().getUserId();
-            if (securityUser.getAuthorities().stream().anyMatch(auth -> auth.getAuthority().equals("ROLE_USER"))) {
-                userSchedule = userService.userSchedule(userId);
-            }
+            userSchedule = userService.userSchedule(userId);
         }catch (Exception e){
             System.out.println("문제발생!!!!!!!!!!!!!!!");
 
-        e.printStackTrace();        }
+        e.printStackTrace();
+        }
         return ResponseEntity.ok(userSchedule);
     }
     @GetMapping("/userWishSD")
