@@ -1,5 +1,6 @@
 package com.tgd.trip.schedule.dto;
 
+import com.tgd.trip.schedule.domain.Schedule;
 import com.tgd.trip.user.dto.UserDto;
 import lombok.Builder;
 
@@ -27,4 +28,5 @@ public class ScheduleDto {
                                  List<DayDto.DateResponse> days,
                                  UserDto.SimpleResponse user) {
     }
+
 }

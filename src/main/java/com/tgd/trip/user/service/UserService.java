@@ -2,11 +2,13 @@ package com.tgd.trip.user.service;
 
 import com.tgd.trip.attraction.domain.Attraction;
 import com.tgd.trip.attraction.domain.AttractionBookmark;
+import com.tgd.trip.attraction.dto.AttractionDto;
 import com.tgd.trip.attraction.repository.AttractionBookmarkRepository;
 import com.tgd.trip.global.s3.S3Uploader;
 import com.tgd.trip.jwt.JwtTokenProvider;
 import com.tgd.trip.schedule.domain.Schedule;
 import com.tgd.trip.schedule.domain.ScheduleBookmark;
+import com.tgd.trip.schedule.dto.ScheduleDto;
 import com.tgd.trip.schedule.repository.ScheduleBookmarkRepository;
 import com.tgd.trip.schedule.repository.ScheduleRepository;
 import com.tgd.trip.user.domain.Role;
@@ -14,6 +16,7 @@ import com.tgd.trip.user.domain.User;
 import com.tgd.trip.user.domain.UserStatus;
 import com.tgd.trip.user.dto.SignupDto;
 import com.tgd.trip.user.dto.UserDto;
+import com.tgd.trip.user.mapper.UserMapper;
 import com.tgd.trip.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -30,11 +33,13 @@ import java.util.stream.Collectors;
 public class UserService {
 
     private final UserRepository userRepository;
-    private final ScheduleRepository scheduleRepository;
+    private final UserMapper userMapper;
+
     private final ScheduleBookmarkRepository scheduleBookmarkRepository;
     private final AttractionBookmarkRepository attractionBookmarkRepository;
     private final S3Uploader s3Uploader;
     private final JwtTokenProvider provider;
+
 
     public User getVerifyUser(String email) {
         return userRepository.findByEmail(email).orElseThrow();
@@ -102,7 +107,7 @@ public class UserService {
 
     public List<Schedule> userSchedule(Long userId) {
         User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
-        return scheduleRepository.findAllByUser(user);
+        return null;
     }
 
     public List<Schedule> userWishSD(Long userId) {
@@ -149,4 +154,21 @@ public class UserService {
         member.setImgUrl("");
         userRepository.save(member);
     }
+
+    public List<ScheduleDto.SimpleResponse> findScheduleBookmarkAllByUser(User user) {
+        List<ScheduleBookmark> responses = null;
+
+        responses = scheduleBookmarkRepository.findAllByUser(user);
+
+        return userMapper.entityToScheduleResponse(responses);
+    }
+
+    public List<AttractionDto.Response> findAttractionBookmarkAllByUser(User user) {
+        List<AttractionBookmark> responses = null;
+
+        responses = attractionBookmarkRepository.findAllByUser(user);
+
+        return userMapper.entityToAttractionResponse(responses);
+    }
+
 }
