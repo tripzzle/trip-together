@@ -153,8 +153,8 @@ public class ScheduleService {
     }
 
     @Transactional
-    public void createBookmark(Long scheduleId, Long userId) {
-        User findUser = userService.getVerifyUser(userId);
+    public void createBookmark(Long scheduleId, SecurityUser securityUser) {
+        User findUser = userService.getVerifyUser(securityUser.getMember().getUserId());
         Schedule findSchedule = getSchedule(scheduleId);
         ScheduleBookmark scheduleBookmark = new ScheduleBookmark(findSchedule);
         findUser.addScheduleBookmark(scheduleBookmark);
@@ -162,15 +162,15 @@ public class ScheduleService {
     }
 
     @Transactional
-    public void deleteBookmark(Long scheduleId, Long userId) {
-        User findUser = userService.getVerifyUser(userId);
+    public void deleteBookmark(Long scheduleId, SecurityUser securityUser) {
+        User findUser = userService.getVerifyUser(securityUser.getMember().getUserId());
         Schedule findSchedule = getSchedule(scheduleId);
         scheduleBookmarkRepository.deleteByUserAndSchedule(findUser, findSchedule);
     }
 
     @Transactional
-    public void createLike(Long scheduleId, Long userId) {
-        User findUser = userService.getVerifyUser(userId);
+    public void createLike(Long scheduleId, SecurityUser securityUser) {
+        User findUser = userService.getVerifyUser(securityUser.getMember().getUserId());
         Schedule findSchedule = getSchedule(scheduleId);
 
         // 오늘의 시작 시간과 끝 시간을 구하기
