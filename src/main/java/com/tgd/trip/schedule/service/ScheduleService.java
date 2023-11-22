@@ -11,6 +11,7 @@ import com.tgd.trip.schedule.repository.CommentRepository;
 import com.tgd.trip.schedule.repository.ScheduleBookmarkRepository;
 import com.tgd.trip.schedule.repository.ScheduleLikeRepository;
 import com.tgd.trip.schedule.repository.ScheduleRepository;
+import com.tgd.trip.security.SecurityUser;
 import com.tgd.trip.user.domain.User;
 import com.tgd.trip.user.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -40,9 +41,9 @@ public class ScheduleService {
     private final UserService userService;
 
     @Transactional
-    public Schedule createSchedule(ScheduleDto.Post post, MultipartFile file) {
+    public Schedule createSchedule(ScheduleDto.Post post, SecurityUser securityUser, MultipartFile file) {
         // 유저 존재하는지 판별
-        User verifyUser = userService.getVerifyUser(post.userId());
+        User user = userService.getVerifyUser(securityUser.getMember().getUserId());
 
         // 일정 이름, 내용을 가지는 객체 생성
         String imgUrl = "";
@@ -65,16 +66,20 @@ public class ScheduleService {
                     .forEach(dayAttractionDto -> dayAttractionService.update(dayAttractionDto, day));
         });
         // 유저와 연결
-        verifyUser.addSchedule(schedule);
+        user.addSchedule(schedule);
         scheduleRepository.save(schedule);
 
         return schedule;
     }
 
     @Transactional
-    public Schedule updateSchedule(Long scheduleId, ScheduleDto.Patch patch, MultipartFile file) {
+    public Schedule updateSchedule(SecurityUser securityUser, Long scheduleId, ScheduleDto.Patch patch, MultipartFile file) {
         // 기존 스케줄 가져오기
         Schedule schedule = getSchedule(scheduleId);
+
+        if (!securityUser.getMember().getEmail().equals(schedule.getUser().getEmail())) {
+            throw new CustomException(ErrorCode.DIFFERENT_USER);
+        }
 
         // 일정용 이미지 업로드
         String imgUrl = "";
@@ -186,15 +191,15 @@ public class ScheduleService {
     }
 
     @Transactional
-    public void createComment(Long scheduleId, CommentDto.Post post) {
+    public void createComment(SecurityUser securityUser, Long scheduleId, CommentDto.Post post) {
+        // 유저 가져오기
+        User user = securityUser.getMember();
+
         // 스케줄 예외 처리
         Schedule findSchedule = getSchedule(scheduleId);
 
-        // 유저 예외 처리
-        User findUser = userService.getVerifyUser(post.userId());
-
         // 댓글 생성
-        Comment comment = new Comment(findUser, post.content());
+        Comment comment = new Comment(user, post.content());
         findSchedule.addComments(comment);
         commentRepository.save(comment);
     }
@@ -222,13 +227,19 @@ public class ScheduleService {
     }
 
     @Transactional
-    public void deleteComment(Long scheduleId, Long commentId) {
+    public void deleteComment(SecurityUser securityUser, Long scheduleId, Long commentId) {
+        User user = securityUser.getMember();
+
         // 스케줄 예외 처리
         getSchedule(scheduleId);
 
         // 댓글 가져오기
         Comment findComment = commentRepository.findById(commentId)
                 .orElseThrow(() -> new CustomException(ErrorCode.COMMENT_NOT_FOUND));
+
+        if (!findComment.getUser().getEmail().equals(user.getEmail())) {
+            throw new CustomException(ErrorCode.DIFFERENT_USER);
+        }
 
         commentRepository.delete(findComment);
     }
