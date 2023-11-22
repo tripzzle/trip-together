@@ -3,8 +3,15 @@ package com.tgd.trip.user.controller;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tgd.trip.attraction.domain.Attraction;
+import com.tgd.trip.attraction.dto.AttractionDto;
+import com.tgd.trip.global.dto.PageResponse;
 import com.tgd.trip.jwt.JwtTokenProvider;
 import com.tgd.trip.schedule.domain.Schedule;
+import com.tgd.trip.schedule.domain.ScheduleBookmark;
+import com.tgd.trip.schedule.dto.ScheduleDto;
+import com.tgd.trip.schedule.mapper.ScheduleMapper;
+import com.tgd.trip.schedule.repository.ScheduleBookmarkRepository;
+import com.tgd.trip.schedule.service.ScheduleService;
 import com.tgd.trip.security.SecurityUser;
 import com.tgd.trip.user.domain.User;
 import com.tgd.trip.user.dto.SignupDto;
@@ -13,7 +20,6 @@ import com.tgd.trip.user.mapper.UserMapper;
 import com.tgd.trip.user.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -21,6 +27,8 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
+
+import static java.util.stream.Collectors.toList;
 
 @RequiredArgsConstructor
 @RestController
@@ -31,6 +39,7 @@ public class UserController {
     private final JwtTokenProvider jwtTokenProvider;
     private final UserService userService;
     private final UserMapper userMapper;
+
     @GetMapping("/signup")
     public ResponseEntity<SignupDto> signup(@AuthenticationPrincipal SecurityUser securityUser) {
         System.out.println("회원가입 요청옴");
@@ -101,37 +110,26 @@ public class UserController {
 
     @GetMapping("/userSchedule")
     public ResponseEntity<?> userSchedule(@AuthenticationPrincipal SecurityUser securityUser) {
-        List<Schedule> userSchedule = null;
-        try {
-            Long userId = securityUser.getMember().getUserId();
-            userSchedule = userService.userSchedule(userId);
-        }catch (Exception e){
-            System.out.println("문제발생!!!!!!!!!!!!!!!");
+        User verifyUser = userService.getVerifyUser(securityUser.getMember().getUserId());
+        List<ScheduleDto.SimpleResponse> responses = userMapper.entityToUserResponse(verifyUser);
 
-        e.printStackTrace();
-        }
-        return ResponseEntity.ok(userSchedule);
+        return ResponseEntity.ok(responses);
     }
-    @GetMapping("/userWishSD")
-    public ResponseEntity<?> userWishSD(@AuthenticationPrincipal SecurityUser securityUser) {
-        List<Schedule> userWishSD = null;
-        Long userId =  securityUser.getMember().getUserId();
 
-        if (securityUser.getAuthorities().stream().anyMatch(auth -> auth.getAuthority().equals("ROLE_USER"))){
-            userWishSD = userService.userWishSD(userId);
-        }
-        return ResponseEntity.ok(userWishSD);
+    @GetMapping("/userWishSC")
+    public ResponseEntity<?> userWishSC(@AuthenticationPrincipal SecurityUser securityUser) {
+        User verifyUser = userService.getVerifyUser(securityUser.getMember().getUserId());
+        List<ScheduleDto.SimpleResponse> result = userService.findScheduleBookmarkAllByUser(verifyUser);
 
+        return ResponseEntity.ok(result);
     }
 
     @GetMapping("/userWishAT")
     public ResponseEntity<?> userWishAT(@AuthenticationPrincipal SecurityUser securityUser) {
-        List<Attraction> userWishAT = null;
-        Long userId =  securityUser.getMember().getUserId();
+        User verifyUser = userService.getVerifyUser(securityUser.getMember().getUserId());
+        List<AttractionDto.Response> result = userService.findAttractionBookmarkAllByUser(verifyUser);
 
-        if (securityUser.getAuthorities().stream().anyMatch(auth -> auth.getAuthority().equals("ROLE_USER"))){
-            userWishAT = userService.userWishAT(userId);
-        }
-        return ResponseEntity.ok(userWishAT);
+        return ResponseEntity.ok(result);
     }
+
 }

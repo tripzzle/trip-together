@@ -12,4 +12,5 @@ public interface ScheduleBookmarkRepository extends JpaRepository<ScheduleBookma
 
     void deleteByUserAndSchedule(User user, Schedule schedule);
     List<ScheduleBookmark> findAllByUser(User user);
+
 }
