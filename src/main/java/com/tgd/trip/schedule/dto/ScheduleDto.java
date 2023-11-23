@@ -1,5 +1,6 @@
 package com.tgd.trip.schedule.dto;
 
+import com.tgd.trip.schedule.domain.Schedule;
 import com.tgd.trip.user.dto.UserDto;
 import lombok.Builder;
 
@@ -7,7 +8,7 @@ import java.util.List;
 
 public class ScheduleDto {
 
-    public record Post(String title, String content, Boolean viewYn, List<DayDto.Post> days, Long userId) {
+    public record Post(String title, String content, Boolean viewYn, List<DayDto.Post> days) {
     }
 
     public record Patch(String title, String content, Boolean viewYn, List<DayDto.Patch> days) {
@@ -27,4 +28,5 @@ public class ScheduleDto {
                                  List<DayDto.DateResponse> days,
                                  UserDto.SimpleResponse user) {
     }
+
 }

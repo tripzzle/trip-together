@@ -4,6 +4,7 @@ import com.tgd.trip.attraction.domain.AttractionBookmark;
 import com.tgd.trip.global.BaseEntity;
 import com.tgd.trip.schedule.domain.Schedule;
 import com.tgd.trip.schedule.domain.ScheduleBookmark;
+import com.tgd.trip.user.dto.UserDto;
 import lombok.*;
 
 import javax.persistence.*;
@@ -11,6 +12,7 @@ import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Entity
 @Getter
@@ -88,5 +90,16 @@ public class User extends BaseEntity {
             schedules.add(schedule);
         }
         schedule.setUser(this);
+    }
+
+    public void userUpdate(UserDto.Patch patch, String imgUrl) {
+        Optional.ofNullable(patch.nickname())
+                .ifPresent(this::setNickName);
+        Optional.ofNullable(imgUrl)
+                .ifPresent(this::setImgUrl);
+        Optional.ofNullable(patch.birth())
+                .ifPresent(this::setBirth);
+        Optional.ofNullable(patch.sex())
+                .ifPresent(this::setSex);
     }
 }
