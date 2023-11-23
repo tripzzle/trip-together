@@ -5,7 +5,7 @@
 - Spring Framework 2.7.16
 - Java 17
 
-- aws ec2 instance : ubuntu
+- AWS EC2
 
 
 ### 실행 순서
@@ -23,6 +23,7 @@ $ git submodule update --remote --merge
 # build.gralde에 아래 내용 없으면 추가
 
 # ./security에서 src/main/resouces로 폴더 copy
+```
 processResources.dependsOn('copySecret')
 tasks.register('copySecret', Copy) {
     from './security'
