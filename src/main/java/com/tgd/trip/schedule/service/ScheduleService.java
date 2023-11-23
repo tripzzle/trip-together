@@ -129,7 +129,8 @@ public class ScheduleService {
 
     public Page<Schedule> getSchedules(String keyword, String sort, Pageable pageable) {
         Page<Schedule> schedules = scheduleRepository
-                .findAllByTitleContainingAndViewYnNot(keyword, true, PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), Sort.by("created_at").descending()));
+                .findAllByTitleContainingAndViewYnNot(keyword, true, PageRequest.of(pageable.getPageNumber(),
+                        pageable.getPageSize(), Sort.by("createdAt").descending()));
         return schedules;
     }
 
