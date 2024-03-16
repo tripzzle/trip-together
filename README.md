@@ -15,14 +15,13 @@
 ```
 $ git clone --recurse-submodules {레포주소}
 
-#### 서브모듈 업데이트하는 방법
+# 서브모듈 업데이트하는 방법
 $ git submodule update --remote --merge
 
-#### 2. gradle
 ```
-# build.gralde에 아래 내용 없으면 추가
+#### 2. build.gralde 설정
 
-# ./security에서 src/main/resouces로 폴더 copy
+`./security -> src/main/resouces로의 복사를 위해 필요한 설정`
 ```
 processResources.dependsOn('copySecret')
 tasks.register('copySecret', Copy) {
